@@ -2,6 +2,8 @@
 
 ## Proyecto Kurtz — Sistema de reservas para espacio de coworking
 
+**Repositorio en GitHub:** al crearlo, usar el nombre `is2-2026-kodolabs` (minúsculas, sin espacios).
+
 Sistema web para que los miembros de un espacio de coworking puedan reservar salas y escritorios. Reemplaza la gestión actual por WhatsApp y evita conflictos de doble reserva.
 
 ---
