@@ -26,4 +26,3 @@ Sistema de reservas para espacio de coworking que permite a los miembros ver la 
 ### Enlaces
 
 - **Tablero Kanban (GitHub Projects): https://github.com/users/francoolexyn/projects/3/views/1
-- **Último reporte semanal (Campus):** [Agregar enlace]
