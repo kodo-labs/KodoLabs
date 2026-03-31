@@ -24,5 +24,7 @@ Sistema de reservas para espacio de coworking que permite a los miembros ver la 
 ---
 
 ### Enlaces
+Patrones de uso a utilizar: Factory Method y Observer
+Caso de uso a desarrollar: Un miembro elige un recurso (sala o escritorio) un horario y el sistema verifica que no haya conflicto y confirma.
 
 - **Tablero Kanban (GitHub Projects): https://github.com/users/francoolexyn/projects/3/views/1
