@@ -3,7 +3,7 @@ export const USERS = [
   {
     id: 1,
     name: 'Valentina López',
-    email: 'valentina@kutz.co',
+    email: 'valentina@bookdesk.co',
     password: '1234',
     role: 'member',
     avatar: 'VL',
@@ -11,15 +11,15 @@ export const USERS = [
   {
     id: 2,
     name: 'Marcos Díaz',
-    email: 'marcos@kutz.co',
+    email: 'marcos@bookdesk.co',
     password: '1234',
     role: 'member',
     avatar: 'MD',
   },
   {
     id: 3,
-    name: 'Admin Kutz',
-    email: 'admin@kutz.co',
+    name: 'Admin BookDesk',
+    email: 'admin@bookdesk.co',
     password: 'admin',
     role: 'admin',
     avatar: 'AK',
