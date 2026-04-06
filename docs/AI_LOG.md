@@ -70,7 +70,7 @@ En el coloquio del TP1 y TP2 el docente puede abrir este archivo y preguntar sob
 - **Herramienta:** Claude Code (Anthropic) — claude.ai/code
 - **Responsable:** UX Lead — Santino Roa
 - **¿Para qué se usó?:**  
-  Implementar el prototipo funcional de la interfaz de usuario del sistema Kutz: configuración del proyecto React + Vite + Tailwind, todos los componentes, las 6 pantallas principales y la documentación de diseño en `design/README.md`.
+  Implementar el prototipo funcional de la interfaz de usuario del sistema BookDesk: configuración del proyecto React + Vite + Tailwind, todos los componentes, las 6 pantallas principales y la documentación de diseño en `design/README.md`.
 
 - **¿Qué generó la IA?:**  
   La IA generó la estructura de archivos y el código completo de:

@@ -1,6 +1,6 @@
 # KodoLabs
 
-## Proyecto Kutz — Sistema de reservas para espacio de coworking
+## Proyecto BookDesk — Sistema de reservas para espacio de coworking
 
 Sistema web para que los miembros de un espacio de coworking puedan reservar salas y escritorios. Reemplaza la gestión actual por WhatsApp y evita conflictos de doble reserva.
 

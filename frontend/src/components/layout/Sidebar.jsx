@@ -70,7 +70,7 @@ export default function Sidebar() {
             K
           </div>
           <div>
-            <p className="font-bold text-lg leading-tight">Kutz</p>
+            <p className="font-bold text-lg leading-tight">BookDesk</p>
             <p className="text-brand-200 text-xs">Coworking</p>
           </div>
         </div>

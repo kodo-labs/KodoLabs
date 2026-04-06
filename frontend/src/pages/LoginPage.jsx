@@ -26,10 +26,10 @@ export default function LoginPage() {
 
   function fillDemo(role) {
     if (role === 'member') {
-      setEmail('valentina@kutz.co')
+      setEmail('valentina@bookdesk.co')
       setPassword('1234')
     } else {
-      setEmail('admin@kutz.co')
+      setEmail('admin@bookdesk.co')
       setPassword('admin')
     }
     setError('')
@@ -43,7 +43,7 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur rounded-2xl mb-4">
             <span className="text-4xl font-black text-white">K</span>
           </div>
-          <h1 className="text-3xl font-black text-white">Kutz</h1>
+          <h1 className="text-3xl font-black text-white">BookDesk</h1>
           <p className="text-brand-200 mt-1">Sistema de reservas — Coworking</p>
         </div>
 
@@ -128,7 +128,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-brand-300 text-xs mt-6">
-          Kutz Coworking © 2026
+          BookDesk Coworking © 2026
         </p>
       </div>
     </div>

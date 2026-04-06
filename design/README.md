@@ -1,4 +1,4 @@
-# Diseño UX/UI — Kutz Coworking
+# Diseño UX/UI — BookDesk Coworking
 
 **Responsable:** UX Lead — Santino Roa  
 **Última actualización:** Abril 2026  
@@ -8,7 +8,7 @@
 
 ## Descripción general
 
-El diseño UX/UI de Kutz se materializó como un **prototipo funcional** en React + Vite + Tailwind CSS, ubicado en la carpeta `frontend/`. No es solo un mockup estático: el prototipo es navegable, incluye datos de muestra y demuestra todos los flujos de usuario definidos en el contrato del proyecto.
+El diseño UX/UI de BookDesk se materializó como un **prototipo funcional** en React + Vite + Tailwind CSS, ubicado en la carpeta `frontend/`. No es solo un mockup estático: el prototipo es navegable, incluye datos de muestra y demuestra todos los flujos de usuario definidos en el contrato del proyecto.
 
 ---
 
@@ -66,9 +66,9 @@ frontend/
 **Credenciales demo:**
 | Usuario | Email | Contraseña | Rol |
 |---------|-------|-----------|-----|
-| Valentina López | valentina@kutz.co | 1234 | Miembro |
-| Marcos Díaz | marcos@kutz.co | 1234 | Miembro |
-| Admin Kutz | admin@kutz.co | admin | Administrador |
+| Valentina López | valentina@bookdesk.co | 1234 | Miembro |
+| Marcos Díaz | marcos@bookdesk.co | 1234 | Miembro |
+| Admin BookDesk | admin@bookdesk.co | admin | Administrador |
 
 ---
 

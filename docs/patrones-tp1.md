@@ -1,6 +1,6 @@
 # Patrones de Diseño — TP1
 
-**Proyecto:** Kutz — Sistema de reservas para espacio de coworking  
+**Proyecto:** BookDesk — Sistema de reservas para espacio de coworking  
 **Entrega:** TP1  
 **Grupo:** KodoLabs  
 
