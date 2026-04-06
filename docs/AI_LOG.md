@@ -62,3 +62,63 @@ En el coloquio del TP1 y TP2 el docente puede abrir este archivo y preguntar sob
   - La comprensión del código por parte de cada integrante
 
   > ⚠️ **Nota:** todo el código incorporado fue revisado y puede ser explicado por cualquier integrante en el coloquio.
+
+---
+
+## Entrada 002 - Semana 5 (UX/UI — Prototipo funcional React)
+
+- **Herramienta:** Claude Code (Anthropic) — claude.ai/code
+- **Responsable:** UX Lead — Santino Roa
+- **¿Para qué se usó?:**  
+  Implementar el prototipo funcional de la interfaz de usuario del sistema Kutz: configuración del proyecto React + Vite + Tailwind, todos los componentes, las 6 pantallas principales y la documentación de diseño en `design/README.md`.
+
+- **¿Qué generó la IA?:**  
+  La IA generó la estructura de archivos y el código completo de:
+
+  | Archivo | Descripción |
+  |---------|-------------|
+  | `frontend/package.json` | Dependencias del proyecto frontend |
+  | `frontend/vite.config.js` | Configuración de Vite |
+  | `frontend/tailwind.config.js` | Paleta de colores y configuración Tailwind |
+  | `frontend/src/main.jsx` | Punto de entrada React |
+  | `frontend/src/App.jsx` | Router + providers de contexto |
+  | `frontend/src/index.css` | Estilos base con Tailwind |
+  | `frontend/src/data/mockData.js` | Datos de prueba: usuarios, recursos, reservas |
+  | `frontend/src/context/AuthContext.jsx` | Estado de autenticación |
+  | `frontend/src/context/ReservationsContext.jsx` | Estado global de reservas |
+  | `frontend/src/components/layout/Sidebar.jsx` | Sidebar con navegación por rol |
+  | `frontend/src/components/layout/TopBar.jsx` | Barra superior |
+  | `frontend/src/components/layout/Layout.jsx` | Shell de la aplicación |
+  | `frontend/src/components/calendar/WeeklyCalendar.jsx` | Grilla semanal de disponibilidad |
+  | `frontend/src/components/booking/ResourceCard.jsx` | Tarjeta de sala/escritorio |
+  | `frontend/src/components/booking/BookingModal.jsx` | Modal de confirmación de reserva |
+  | `frontend/src/components/common/Badge.jsx` | Insignia de estado de reserva |
+  | `frontend/src/components/common/StatsCard.jsx` | Tarjeta de métricas (admin) |
+  | `frontend/src/pages/LoginPage.jsx` | Pantalla de login con demo rápida |
+  | `frontend/src/pages/DashboardPage.jsx` | Vista principal con calendario |
+  | `frontend/src/pages/BookingPage.jsx` | Flujo de reserva en 2 pasos |
+  | `frontend/src/pages/ReservationsPage.jsx` | Historial de mis reservas |
+  | `frontend/src/pages/admin/AdminDashboardPage.jsx` | Panel administrador con métricas |
+  | `frontend/src/pages/admin/AdminResourcesPage.jsx` | CRUD de recursos |
+  | `design/README.md` | Documentación de diseño UX/UI |
+
+- **¿Qué modificamos y por qué?:**
+
+  **Decisiones previas a la generación (propias del equipo, no de la IA):**
+  - La elección de React + Vite + Tailwind CSS fue decisión del equipo. Se consideró Vue y Angular, pero React tiene mayor adopción y mejor integración con el stack previsto para el integrador.
+  - La estructura de pantallas (dashboard, booking, reservations, admin) fue diseñada por el UX Lead a partir del análisis del dominio y los flujos descritos en el contrato del proyecto.
+  - La decisión de hacer un prototipo funcional (en lugar de Figma) fue del equipo: permite validar los flujos de usuario de forma más realista y se puede evolucionar directamente al producto final.
+
+  **Ajustes realizados al código generado:**
+  - Se verificó que la relación entre pantallas respete el flujo de usuario descrito en el contrato (ver disponibilidad → reservar → confirmar → ver historial).
+  - Se revisó que los colores del calendario (verde/rojo/azul/gris) correspondan a una convención UX coherente y explicable.
+  - Se validó que el flujo de admin incluya la funcionalidad de bloqueo de horarios requerida por el contrato.
+  - Se comprobó que la conexión conceptual con los patrones Observer y Factory Method sea visible en la UI (pantalla de éxito del booking, renderizado diferenciado por tipo de recurso).
+
+  **Partes NO generadas con IA:**
+  - La decisión de qué pantallas son necesarias y el flujo entre ellas
+  - La elección del stack tecnológico y la justificación técnica
+  - La revisión crítica de los componentes generados
+  - La comprensión del código por parte de cada integrante
+
+  > ⚠️ **Nota:** todo el código incorporado fue revisado y puede ser explicado por cualquier integrante en el coloquio.
