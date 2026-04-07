@@ -121,4 +121,4 @@ En el coloquio del TP1 y TP2 el docente puede abrir este archivo y preguntar sob
   - La revisión crítica de los componentes generados
   - La comprensión del código por parte de cada integrante
 
-  > ⚠️ **Nota:** todo el código incorporado fue revisado y puede ser explicado por cualquier integrante en el coloquio.
+  
