@@ -12,6 +12,9 @@
 
 ## Conclusión y Certificación
 
-Si tuviéramos que certificar nuestro sistema bajo un estándar actual, elegiríamos **ISO/IEC 27001**. Dado que gestionamos datos de terceros y accesos físicos, la seguridad es la prioridad. 
+Si tuviéramos que certificar nuestro sistema bajo un estándar actual, elegiríamos **ISO/IEC 27001**. Dado que gestionamos datos de terceros y accesos físicos, la seguridad es la prioridad absoluta.
 
-En cuanto al diseño, esto implicaría pasar de un enfoque centrado solo en la funcionalidad a uno de **"Seguridad por Diseño"**. Arquitectónicamente, el uso del patrón **Observer** que implementamos en el TP1 nos facilita el cumplimiento, ya que permite gatillar sistemas de auditoría y logs de forma automática ante cambios de estado sensibles sin acoplar la lógica de negocio.
+En cuanto al diseño, esto implicaría pasar de un enfoque centrado solo en la funcionalidad a uno de **"Seguridad por Diseño"**. El análisis de nuestras decisiones en el TP1 arroja lo siguiente:
+
+* **Patrón Observer:** Nos facilita el cumplimiento de la norma, ya que permite gatillar sistemas de auditoría y logs de forma automática ante cambios de estado sensibles sin acoplar la lógica de negocio.
+* **Patrón Factory:** Ayuda a la estandarización de procesos (ISO 9001) al asegurar que la creación de objetos complejos (como diferentes niveles de membresía) sea consistente y libre de errores manuales.
