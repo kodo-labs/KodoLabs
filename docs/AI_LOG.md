@@ -121,4 +121,11 @@ En el coloquio del TP1 y TP2 el docente puede abrir este archivo y preguntar sob
   - La revisión crítica de los componentes generados
   - La comprensión del código por parte de cada integrante
 
-  
+# Registro de Uso de Inteligencia Artificial (IA_LOG)
+
+## Entrada 003 - Semana 6
+* **Herramienta:** Gemini 3 Flash.
+* **Responsable:** [Scrum Master Olexyn, Franco Ian].
+* **¿Para qué se usó?:** Investigar la aplicación de estándares ISO (9241-11, 13407, 27001, 62443, 9001) al escenario de Coworking y estructurar el documento de análisis técnico.
+* **¿Qué generó la IA?:** Una tabla comparativa detallando cada estándar, su enfoque principal y una justificación de su aplicación al proyecto, además de un párrafo de conclusión vinculando patrones de diseño (Observer/Singleton).
+* **¿Qué modificamos y por qué?:** Se ajustó la conclusión para reflejar específicamente los patrones usados en nuestro código del TP1 y se filtró la información de la ISO 62443 para que solo mencionara la parte de infraestructura (IoT), ya que nuestro sistema es principalmente de gestión de software.  
