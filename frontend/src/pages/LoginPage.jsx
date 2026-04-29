@@ -1,6 +1,50 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+
+function AuthLogo() {
+  return (
+    <Link to="/" className="mx-auto mb-8 flex w-max items-center gap-2">
+      <span className="grid h-5 w-5 place-items-center rounded-md bg-gradient-to-br from-[#54c6ff] to-[#0058bc] shadow-[0_8px_18px_rgba(0,112,235,0.25)]">
+        <span className="h-2.5 w-2.5 rounded-sm bg-white/35" />
+      </span>
+      <span className="text-base font-black text-[#11151b]">BookDesk</span>
+    </Link>
+  )
+}
+
+function AuthInput({ icon, type = 'text', value, onChange, placeholder, required = true }) {
+  return (
+    <label className="auth-input-wrap">
+      <span className="text-[#717786]">{icon}</span>
+      <input
+        type={type}
+        required={required}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="min-w-0 flex-1 bg-transparent text-xs font-medium text-[#414755] outline-none placeholder:text-[#8a909c]"
+      />
+    </label>
+  )
+}
+
+function AuthShell({ children }) {
+  return (
+    <main className="auth-page min-h-screen overflow-hidden bg-[#f9f9ff] text-[#11151b]">
+      <div className="auth-frame">
+        <div className="auth-bg-band" />
+        <div className="auth-glass auth-glass-left" />
+        <div className="auth-glass auth-glass-top" />
+        <div className="auth-glass auth-glass-right" />
+        <div className="auth-glass auth-glass-bottom" />
+        <div className="relative z-10 flex min-h-[640px] items-center justify-center px-4 py-14">
+          {children}
+        </div>
+      </div>
+    </main>
+  )
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -14,8 +58,8 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    await new Promise(r => setTimeout(r, 400))
-    const result = login(email, password)
+    await new Promise(resolve => setTimeout(resolve, 400))
+    const result = await login(email, password)
     setLoading(false)
     if (result.ok) {
       navigate('/dashboard')
@@ -36,101 +80,63 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-900 via-brand-800 to-brand-600 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur rounded-2xl mb-4">
-            <span className="text-4xl font-black text-white">K</span>
-          </div>
-          <h1 className="text-3xl font-black text-white">BookDesk</h1>
-          <p className="text-brand-200 mt-1">Sistema de reservas — Coworking</p>
+    <AuthShell>
+      <section className="auth-card">
+        <AuthLogo />
+        <h1 className="text-center text-3xl font-black tracking-normal text-[#11151b]">Welcome Back</h1>
+
+        <form onSubmit={handleSubmit} className="mt-7 space-y-4">
+          <AuthInput
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="Email Address"
+            icon={
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 4h16v16H4z" />
+                <path d="M4 7l8 6 8-6" />
+              </svg>
+            }
+          />
+          <AuthInput
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Password"
+            icon={
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M7 11V8a5 5 0 0110 0v3" />
+                <path d="M5 11h14v10H5z" />
+              </svg>
+            }
+          />
+
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-xs font-semibold text-red-700">
+              {error}
+            </div>
+          )}
+
+          <button type="submit" disabled={loading} className="auth-primary-button">
+            {loading ? 'Signing in...' : 'Sign In'}
+            <span aria-hidden="true">-&gt;</span>
+          </button>
+        </form>
+
+        <div className="mt-5 flex flex-col items-center gap-2 text-xs font-semibold">
+          <button type="button" onClick={() => fillDemo('member')} className="text-[#0058bc] hover:text-[#003f8f]">
+            Use member demo
+          </button>
+          <button type="button" onClick={() => fillDemo('admin')} className="text-[#9e3d00] hover:text-[#7c2e00]">
+            Use admin demo
+          </button>
+          <Link to="/register" className="text-[#0058bc] hover:text-[#003f8f]">
+            Create Account
+          </Link>
         </div>
-
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-1">Iniciar sesión</h2>
-          <p className="text-sm text-gray-500 mb-6">Ingresá con tu cuenta de miembro.</p>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Email
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="tu@email.com"
-                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Contraseña
-              </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-              />
-            </div>
-
-            {error && (
-              <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3.5 py-2.5">
-                <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-brand-600 text-white font-semibold rounded-lg hover:bg-brand-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Ingresando…
-                </>
-              ) : 'Ingresar'}
-            </button>
-          </form>
-
-          {/* Accesos rápidos demo */}
-          <div className="mt-6 pt-5 border-t border-gray-100">
-            <p className="text-xs text-gray-400 text-center mb-3">Accesos rápidos (demo)</p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => fillDemo('member')}
-                className="py-2 px-3 text-xs font-medium text-brand-700 bg-brand-50 rounded-lg hover:bg-brand-100 transition-colors"
-              >
-                👤 Miembro
-              </button>
-              <button
-                onClick={() => fillDemo('admin')}
-                className="py-2 px-3 text-xs font-medium text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors"
-              >
-                🛡 Administrador
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <p className="text-center text-brand-300 text-xs mt-6">
-          BookDesk Coworking © 2026
-        </p>
-      </div>
-    </div>
+      </section>
+    </AuthShell>
   )
 }
+
+export { AuthInput, AuthLogo, AuthShell }
