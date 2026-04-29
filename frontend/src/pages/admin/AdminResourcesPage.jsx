@@ -4,17 +4,19 @@ import Badge from '../../components/common/Badge'
 import { RESOURCES } from '../../data/mockData'
 import { useReservations } from '../../context/ReservationsContext'
 
+const emptyForm = { name: '', type: 'room', capacity: 4, floor: 1, description: '', amenities: '' }
+
 export default function AdminResourcesPage() {
   const { reservations } = useReservations()
   const [resources, setResources] = useState(RESOURCES)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
-  const [form, setForm] = useState({ name: '', type: 'room', capacity: 4, floor: 1, description: '', amenities: '' })
+  const [form, setForm] = useState(emptyForm)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   function openCreate() {
     setEditingId(null)
-    setForm({ name: '', type: 'room', capacity: 4, floor: 1, description: '', amenities: '' })
+    setForm(emptyForm)
     setShowForm(true)
   }
 
@@ -32,32 +34,22 @@ export default function AdminResourcesPage() {
   }
 
   function handleSave() {
-    const amenities = form.amenities.split(',').map(a => a.trim()).filter(Boolean)
-    if (editingId) {
-      setResources(prev =>
-        prev.map(r => r.id === editingId
-          ? { ...r, ...form, amenities, capacity: parseInt(form.capacity), floor: parseInt(form.floor) }
-          : r
-        )
-      )
-    } else {
-      const newResource = {
-        id: `resource-${Date.now()}`,
-        ...form,
-        amenities,
-        capacity: parseInt(form.capacity),
-        floor: parseInt(form.floor),
-        image: null,
-      }
-      setResources(prev => [...prev, newResource])
+    const amenities = form.amenities.split(',').map(item => item.trim()).filter(Boolean)
+    const payload = {
+      ...form,
+      amenities,
+      capacity: Number(form.capacity),
+      floor: Number(form.floor),
     }
+
+    if (editingId) {
+      setResources(prev => prev.map(resource => resource.id === editingId ? { ...resource, ...payload } : resource))
+    } else {
+      setResources(prev => [...prev, { id: `resource-${Date.now()}`, ...payload, image: null }])
+    }
+
     setShowForm(false)
     setEditingId(null)
-  }
-
-  function handleDelete(id) {
-    setResources(prev => prev.filter(r => r.id !== id))
-    setDeleteConfirm(null)
   }
 
   function getReservationCount(resourceId) {
@@ -66,176 +58,108 @@ export default function AdminResourcesPage() {
 
   return (
     <div>
-      <TopBar title="Gestión de recursos" subtitle="Administrá salas y escritorios del espacio." />
-
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-5">
-          <p className="text-sm text-gray-500">{resources.length} recursos registrados</p>
+      <TopBar
+        title="Recursos"
+        subtitle="Gestion de salas, escritorios y disponibilidad."
+        action={
           <button
             onClick={openCreate}
-            className="px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 transition-colors flex items-center gap-2"
+            className="hidden rounded-full bg-[#2563eb] px-4 py-2 text-xs font-black text-white shadow-[0_14px_30px_rgba(37,99,235,0.28)] transition-transform hover:-translate-y-0.5 sm:block"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Agregar recurso
+            Nuevo recurso
           </button>
-        </div>
+        }
+      />
 
-        {/* Formulario crear/editar */}
-        {showForm && (
-          <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5 shadow-sm">
-            <h3 className="font-bold text-gray-900 mb-4">
-              {editingId ? 'Editar recurso' : 'Nuevo recurso'}
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Nombre *</label>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="Ej: Sala Delta"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Tipo *</label>
-                <select
-                  value={form.type}
-                  onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-                >
-                  <option value="room">Sala de reuniones</option>
-                  <option value="desk">Escritorio</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Capacidad (personas)</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={50}
-                  value={form.capacity}
-                  onChange={e => setForm(f => ({ ...f, capacity: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Piso</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={10}
-                  value={form.floor}
-                  onChange={e => setForm(f => ({ ...f, floor: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-medium text-gray-700 mb-1">Descripción</label>
-                <input
-                  type="text"
-                  value={form.description}
-                  onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                  placeholder="Breve descripción del espacio"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Amenidades <span className="text-gray-400 font-normal">(separadas por coma)</span>
-                </label>
-                <input
-                  type="text"
-                  value={form.amenities}
-                  onChange={e => setForm(f => ({ ...f, amenities: e.target.value }))}
-                  placeholder="Proyector, Pizarrón, AC"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-                />
-              </div>
+      <div className="p-4 md:p-8">
+        <section className="mb-5 rounded-[28px] border border-white/80 bg-white/72 p-6 shadow-[0_26px_70px_rgba(35,55,95,0.10)] backdrop-blur md:p-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#2563eb]">Inventario</p>
+              <h2 className="mt-3 text-3xl font-black tracking-normal text-[#202837]">{resources.length} recursos activos</h2>
+              <p className="mt-2 text-sm font-semibold text-[#667085]">Administra capacidad, amenidades y recursos disponibles para reservas.</p>
             </div>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSave}
-                disabled={!form.name.trim()}
-                className="px-5 py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 disabled:opacity-40 transition-colors"
-              >
-                {editingId ? 'Guardar cambios' : 'Crear recurso'}
+            <button
+              onClick={openCreate}
+              className="rounded-xl bg-[#2563eb] px-5 py-3 text-sm font-black text-white shadow-[0_16px_32px_rgba(37,99,235,0.28)] sm:hidden"
+            >
+              Nuevo recurso
+            </button>
+          </div>
+        </section>
+
+        {showForm && (
+          <section className="mb-5 rounded-[24px] border border-white/80 bg-white/78 p-5 shadow-[0_22px_60px_rgba(35,55,95,0.08)] backdrop-blur">
+            <h3 className="text-lg font-black text-[#202837]">{editingId ? 'Editar recurso' : 'Nuevo recurso'}</h3>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Nombre" className="rounded-xl border border-white bg-white/85 px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-200" />
+              <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} className="rounded-xl border border-white bg-white/85 px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-200">
+                <option value="room">Sala de reuniones</option>
+                <option value="desk">Escritorio</option>
+              </select>
+              <input type="number" min="1" value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: e.target.value }))} placeholder="Capacidad" className="rounded-xl border border-white bg-white/85 px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-200" />
+              <input type="number" min="1" value={form.floor} onChange={e => setForm(f => ({ ...f, floor: e.target.value }))} placeholder="Piso" className="rounded-xl border border-white bg-white/85 px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-200" />
+              <input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Descripcion" className="rounded-xl border border-white bg-white/85 px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-200 md:col-span-2" />
+              <input value={form.amenities} onChange={e => setForm(f => ({ ...f, amenities: e.target.value }))} placeholder="Amenidades separadas por coma" className="rounded-xl border border-white bg-white/85 px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-200 md:col-span-2" />
+            </div>
+            <div className="mt-4 flex gap-2">
+              <button onClick={handleSave} disabled={!form.name.trim()} className="rounded-xl bg-[#2563eb] px-5 py-3 text-sm font-black text-white disabled:opacity-40">
+                Guardar
               </button>
-              <button
-                onClick={() => setShowForm(false)}
-                className="px-5 py-2 border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
+              <button onClick={() => setShowForm(false)} className="rounded-xl bg-white px-5 py-3 text-sm font-black text-[#667085]">
                 Cancelar
               </button>
             </div>
-          </div>
+          </section>
         )}
 
-        {/* Grid de recursos */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {resources.map(r => (
-            <div key={r.id} className="bg-white border border-gray-200 rounded-xl p-5 hover:border-gray-300 transition-colors">
-              {/* Header */}
-              <div className="flex items-start justify-between mb-3">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-2xl ${
-                  r.type === 'room' ? 'bg-blue-100' : 'bg-violet-100'
-                }`}>
-                  {r.type === 'room' ? '🏢' : '💻'}
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {resources.map(resource => (
+            <article key={resource.id} className="rounded-[24px] border border-white/80 bg-white/72 p-5 shadow-[0_22px_60px_rgba(35,55,95,0.08)] backdrop-blur">
+              <div className="mb-5 flex items-start justify-between">
+                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-blue-50 text-[#2563eb]">
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 21h18M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
+                    <path d="M9 7h1M14 7h1M9 11h1M14 11h1M10 21v-5h4v5" />
+                  </svg>
                 </div>
-                <Badge variant={r.type} />
+                <Badge variant={resource.type} />
               </div>
-
-              {/* Info */}
-              <h3 className="font-bold text-gray-900 mb-1">{r.name}</h3>
-              <p className="text-xs text-gray-500 mb-3 line-clamp-2">{r.description}</p>
-
-              <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
-                <span>Piso {r.floor}</span>
-                <span>·</span>
-                <span>{r.capacity} {r.capacity === 1 ? 'persona' : 'personas'}</span>
-                <span>·</span>
-                <span className="text-brand-600 font-medium">{getReservationCount(r.id)} reservas</span>
+              <h3 className="text-lg font-black text-[#202837]">{resource.name}</h3>
+              <p className="mt-2 line-clamp-2 min-h-[40px] text-sm font-semibold leading-5 text-[#667085]">{resource.description}</p>
+              <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-xl bg-white/80 p-3">
+                  <p className="text-lg font-black text-[#202837]">{resource.floor}</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#8a94a6]">Piso</p>
+                </div>
+                <div className="rounded-xl bg-white/80 p-3">
+                  <p className="text-lg font-black text-[#202837]">{resource.capacity}</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#8a94a6]">Cupo</p>
+                </div>
+                <div className="rounded-xl bg-white/80 p-3">
+                  <p className="text-lg font-black text-[#202837]">{getReservationCount(resource.id)}</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#8a94a6]">Reservas</p>
+                </div>
               </div>
-
-              <div className="flex flex-wrap gap-1 mb-4">
-                {r.amenities.slice(0, 3).map(a => (
-                  <span key={a} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{a}</span>
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {resource.amenities.slice(0, 4).map(item => (
+                  <span key={item} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-[#667085]">{item}</span>
                 ))}
-                {r.amenities.length > 3 && (
-                  <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">+{r.amenities.length - 3}</span>
-                )}
               </div>
-
-              {/* Acciones */}
-              <div className="flex gap-2 pt-3 border-t border-gray-100">
-                <button
-                  onClick={() => openEdit(r)}
-                  className="flex-1 py-1.5 text-xs font-medium text-brand-700 bg-brand-50 rounded-lg hover:bg-brand-100 transition-colors"
-                >
-                  Editar
-                </button>
-                {deleteConfirm === r.id ? (
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-gray-500">¿Eliminar?</span>
-                    <button onClick={() => handleDelete(r.id)}
-                      className="text-xs text-white bg-red-500 px-2 py-1 rounded hover:bg-red-600 transition-colors">Sí</button>
-                    <button onClick={() => setDeleteConfirm(null)}
-                      className="text-xs text-gray-600 px-2 py-1 rounded hover:bg-gray-100 transition-colors">No</button>
-                  </div>
+              <div className="mt-5 flex gap-2 border-t border-slate-100 pt-4">
+                <button onClick={() => openEdit(resource)} className="flex-1 rounded-xl bg-blue-50 px-3 py-2 text-xs font-black text-[#2563eb]">Editar</button>
+                {deleteConfirm === resource.id ? (
+                  <>
+                    <button onClick={() => setResources(prev => prev.filter(item => item.id !== resource.id))} className="rounded-xl bg-red-500 px-3 py-2 text-xs font-black text-white">Si</button>
+                    <button onClick={() => setDeleteConfirm(null)} className="rounded-xl bg-white px-3 py-2 text-xs font-black text-[#667085]">No</button>
+                  </>
                 ) : (
-                  <button
-                    onClick={() => setDeleteConfirm(r.id)}
-                    className="flex-1 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                  >
-                    Eliminar
-                  </button>
+                  <button onClick={() => setDeleteConfirm(resource.id)} className="flex-1 rounded-xl bg-red-50 px-3 py-2 text-xs font-black text-red-600">Eliminar</button>
                 )}
               </div>
-            </div>
+            </article>
           ))}
-        </div>
+        </section>
       </div>
     </div>
   )

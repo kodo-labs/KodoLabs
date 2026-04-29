@@ -62,7 +62,7 @@ export default function LoginPage() {
     const result = await login(email, password)
     setLoading(false)
     if (result.ok) {
-      navigate('/dashboard')
+      navigate(result.user.role === 'admin' ? '/admin' : '/dashboard')
     } else {
       setError(result.error)
     }

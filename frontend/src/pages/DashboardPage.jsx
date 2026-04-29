@@ -1,152 +1,180 @@
-import { useState } from 'react'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopBar from '../components/layout/TopBar'
-import WeeklyCalendar from '../components/calendar/WeeklyCalendar'
 import Badge from '../components/common/Badge'
-import { RESOURCES, WEEK_DAYS } from '../data/mockData'
+import { RESOURCES, formatDate } from '../data/mockData'
 import { useReservations } from '../context/ReservationsContext'
 import { useAuth } from '../context/AuthContext'
+
+function MiniMetric({ label, value, tone = 'blue' }) {
+  const tones = {
+    blue: 'bg-blue-50 text-blue-700',
+    violet: 'bg-violet-50 text-violet-700',
+    green: 'bg-emerald-50 text-emerald-700',
+  }
+
+  return (
+    <div className="rounded-2xl border border-white/80 bg-white/70 p-5 shadow-[0_18px_45px_rgba(35,55,95,0.08)] backdrop-blur">
+      <div className={`mb-4 grid h-10 w-10 place-items-center rounded-xl ${tones[tone]}`}>
+        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 6v6l4 2" />
+          <circle cx="12" cy="12" r="9" />
+        </svg>
+      </div>
+      <p className="text-3xl font-black text-[#202837]">{value}</p>
+      <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-[#8a94a6]">{label}</p>
+    </div>
+  )
+}
 
 export default function DashboardPage() {
   const { user } = useAuth()
   const { reservations } = useReservations()
   const navigate = useNavigate()
 
-  const [filter, setFilter] = useState('all')
-  const [selectedResource, setSelectedResource] = useState(RESOURCES[0].id)
+  const myReservations = useMemo(
+    () => reservations.filter(r => r.userId === user.id && !r.isBlocked),
+    [reservations, user.id]
+  )
 
-  const resource = RESOURCES.find(r => r.id === selectedResource)
-
-  const filteredResources = filter === 'all'
-    ? RESOURCES
-    : RESOURCES.filter(r => r.type === filter)
-
-  // Próximas reservas del usuario
-  const today = '2026-04-06'
-  const myUpcoming = reservations
-    .filter(r => r.userId === user.id && r.status !== 'cancelled' && r.date >= today)
+  const upcoming = myReservations
+    .filter(r => r.status !== 'cancelled')
     .sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime))
+
+  const next = upcoming[0]
+  const nextResource = RESOURCES.find(r => r.id === next?.resourceId)
+  const recent = myReservations
+    .slice()
+    .sort((a, b) => (b.date + b.startTime).localeCompare(a.date + a.startTime))
     .slice(0, 3)
 
   return (
     <div>
       <TopBar
-        title={`Hola, ${user.name.split(' ')[0]} 👋`}
-        subtitle="Semana 7–11 de abril 2026 — Verificá disponibilidad y reservá"
+        title={`Buen dia, ${user.name.split(' ')[0]}`}
+        subtitle="Tu espacio de trabajo listo para reservar."
+        action={
+          <button
+            onClick={() => navigate('/booking')}
+            className="hidden rounded-full bg-[#2563eb] px-4 py-2 text-xs font-black text-white shadow-[0_14px_30px_rgba(37,99,235,0.28)] transition-transform hover:-translate-y-0.5 sm:block"
+          >
+            Reservar
+          </button>
+        }
       />
 
-      <div className="p-6 space-y-6">
-
-        {/* Mis próximas reservas */}
-        {myUpcoming.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                Mis próximas reservas
+      <div className="p-4 md:p-8">
+        <section className="grid gap-5 xl:grid-cols-[1fr_320px]">
+          <div className="relative overflow-hidden rounded-[28px] border border-white/80 bg-white/70 p-6 shadow-[0_26px_70px_rgba(35,55,95,0.10)] backdrop-blur md:p-8">
+            <div className="absolute right-0 top-0 h-44 w-44 rounded-bl-[70px] bg-[linear-gradient(135deg,rgba(37,99,235,0.12),rgba(168,85,247,0.16))]" />
+            <div className="relative max-w-xl">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#2563eb]">Cliente</p>
+              <h2 className="mt-3 text-3xl font-black tracking-normal text-[#202837] md:text-4xl">
+                {next ? 'Tu proxima reserva esta lista.' : 'Agenda tu proximo espacio.'}
               </h2>
-              <button
-                onClick={() => navigate('/reservations')}
-                className="text-xs text-brand-600 hover:text-brand-800 font-medium"
-              >
-                Ver todas →
-              </button>
+              <p className="mt-3 max-w-lg text-sm font-semibold leading-6 text-[#667085]">
+                {next
+                  ? `${nextResource?.name} te espera el ${formatDate(next.date)} desde ${next.startTime}.`
+                  : 'Elegimos espacios comodos para que puedas reservar sin cruces ni vueltas.'}
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button
+                  onClick={() => navigate('/booking')}
+                  className="rounded-xl bg-[#2563eb] px-5 py-3 text-sm font-black text-white shadow-[0_16px_32px_rgba(37,99,235,0.28)] transition-transform hover:-translate-y-0.5"
+                >
+                  Nueva reserva
+                </button>
+                <button
+                  onClick={() => navigate('/reservations')}
+                  className="rounded-xl bg-white px-5 py-3 text-sm font-black text-[#202837] shadow-sm transition-colors hover:bg-slate-50"
+                >
+                  Ver mis reservas
+                </button>
+              </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {myUpcoming.map(r => {
-                const res = RESOURCES.find(x => x.id === r.resourceId)
-                return (
-                  <div key={r.id} className="bg-white border border-gray-200 rounded-xl p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <span className="text-2xl">{res?.type === 'room' ? '🏢' : '💻'}</span>
+          </div>
+
+          <div className="rounded-[24px] border border-white/80 bg-white/70 p-5 shadow-[0_22px_60px_rgba(35,55,95,0.09)] backdrop-blur">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-[#8a94a6]">Membresia</p>
+            <div className="mt-5 rounded-2xl bg-[linear-gradient(135deg,#f7faff,#f4edff)] p-5">
+              <p className="text-sm font-black text-[#202837]">Gold Member</p>
+              <p className="mt-2 text-3xl font-black text-[#111827]">1,250 pts</p>
+              <p className="mt-1 text-xs font-semibold text-[#7a8496]">Creditos disponibles</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-5 grid gap-5 lg:grid-cols-[1fr_320px]">
+          <div className="space-y-5">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <MiniMetric label="Reservas activas" value={upcoming.length} />
+              <MiniMetric label="Sesiones totales" value={myReservations.length} tone="violet" />
+              <MiniMetric label="Confirmadas" value={myReservations.filter(r => r.status === 'confirmed').length} tone="green" />
+            </div>
+
+            <div className="rounded-[24px] border border-white/80 bg-white/72 p-5 shadow-[0_22px_60px_rgba(35,55,95,0.08)] backdrop-blur">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-black text-[#202837]">Proximas reservas</h2>
+                <button onClick={() => navigate('/reservations')} className="text-xs font-black text-[#2563eb]">Ver todas</button>
+              </div>
+              <div className="grid gap-3">
+                {(upcoming.length ? upcoming.slice(0, 3) : []).map(r => {
+                  const resource = RESOURCES.find(item => item.id === r.resourceId)
+                  return (
+                    <div key={r.id} className="flex items-center gap-4 rounded-2xl bg-white/80 p-4 shadow-sm">
+                      <div className="grid h-12 w-12 place-items-center rounded-xl bg-blue-50 text-[#2563eb]">
+                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M3 21h18M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" />
+                          <path d="M9 7h1M14 7h1M9 11h1M14 11h1" />
+                        </svg>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-black text-[#202837]">{resource?.name}</p>
+                        <p className="mt-1 text-xs font-semibold text-[#7a8496]">{formatDate(r.date)} | {r.startTime}-{r.endTime}</p>
+                      </div>
                       <Badge variant={r.status} />
                     </div>
-                    <p className="font-semibold text-gray-900 text-sm truncate">{res?.name}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {r.date.slice(8)}/04 · {r.startTime}–{r.endTime}
-                    </p>
-                    <p className="text-xs text-gray-400 truncate mt-1">{r.title}</p>
+                  )
+                })}
+                {!upcoming.length && (
+                  <div className="rounded-2xl border border-dashed border-blue-200 bg-blue-50/50 p-6 text-center">
+                    <p className="text-sm font-black text-[#202837]">Todavia no tenes reservas activas.</p>
+                    <button onClick={() => navigate('/booking')} className="mt-3 text-xs font-black text-[#2563eb]">Crear una ahora</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-[24px] border border-white/80 bg-white/72 p-5 shadow-[0_22px_60px_rgba(35,55,95,0.08)] backdrop-blur">
+            <h2 className="text-lg font-black text-[#202837]">Actividad reciente</h2>
+            <div className="mt-5 space-y-4">
+              {recent.map(r => {
+                const resource = RESOURCES.find(item => item.id === r.resourceId)
+                return (
+                  <div key={r.id} className="flex items-start gap-3">
+                    <span className="mt-1 h-2.5 w-2.5 rounded-full bg-[#2563eb]" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-black text-[#202837]">{resource?.name}</p>
+                      <p className="text-xs font-semibold text-[#8a94a6]">{r.title}</p>
+                    </div>
+                    <Badge variant={r.status} />
                   </div>
                 )
               })}
             </div>
-          </section>
-        )}
-
-        {/* Selector de recurso + calendario */}
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5">
-
-          {/* Panel izquierdo: filtros + lista de recursos */}
-          <div className="space-y-3">
-            <div>
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">
-                Recursos
-              </h2>
-              <div className="flex gap-2 mb-3">
-                {[
-                  { value: 'all',  label: 'Todos' },
-                  { value: 'room', label: 'Salas' },
-                  { value: 'desk', label: 'Escritorios' },
-                ].map(f => (
-                  <button
-                    key={f.value}
-                    onClick={() => setFilter(f.value)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                      filter === f.value
-                        ? 'bg-brand-600 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2 max-h-[480px] overflow-y-auto pr-1">
-              {filteredResources.map(r => (
-                <button
-                  key={r.id}
-                  onClick={() => setSelectedResource(r.id)}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg border transition-all text-sm ${
-                    selectedResource === r.id
-                      ? 'border-brand-600 bg-brand-50 text-brand-800'
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span>{r.type === 'room' ? '🏢' : '💻'}</span>
-                    <div className="min-w-0">
-                      <p className="font-medium truncate">{r.name}</p>
-                      <p className="text-xs text-gray-400 truncate">
-                        {r.type === 'room' ? `${r.capacity} personas` : `Escritorio · P${r.floor}`}
-                      </p>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
           </div>
+        </section>
 
-          {/* Panel derecho: calendario */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="font-bold text-gray-900">{resource?.name}</h2>
-                <p className="text-xs text-gray-500 mt-0.5">{resource?.description}</p>
-              </div>
-              <button
-                onClick={() => navigate('/booking')}
-                className="px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 transition-colors"
-              >
-                + Reservar
-              </button>
-            </div>
-            <WeeklyCalendar
-              resourceId={selectedResource}
-              reservations={reservations}
-            />
-          </div>
-        </div>
+        <button
+          onClick={() => navigate('/booking')}
+          className="fixed bottom-5 right-5 grid h-14 w-14 place-items-center rounded-full bg-[#2563eb] text-white shadow-[0_18px_35px_rgba(37,99,235,0.34)] transition-transform hover:-translate-y-1 md:hidden"
+          aria-label="Nueva reserva"
+        >
+          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </button>
       </div>
     </div>
   )

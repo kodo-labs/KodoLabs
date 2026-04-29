@@ -11,10 +11,12 @@ import ReservationsPage from './pages/ReservationsPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminResourcesPage from './pages/admin/AdminResourcesPage'
 
-function ProtectedRoute({ children, adminOnly = false }) {
+function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
-  if (adminOnly && user.role !== 'admin') return <Navigate to="/dashboard" replace />
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />
+  }
   return children
 }
 
@@ -32,13 +34,34 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="booking" element={<BookingPage />} />
-        <Route path="reservations" element={<ReservationsPage />} />
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['member']}>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="booking"
+          element={
+            <ProtectedRoute allowedRoles={['member']}>
+              <BookingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="reservations"
+          element={
+            <ProtectedRoute allowedRoles={['member']}>
+              <ReservationsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="admin"
           element={
-            <ProtectedRoute adminOnly>
+            <ProtectedRoute allowedRoles={['admin']}>
               <AdminDashboardPage />
             </ProtectedRoute>
           }
@@ -46,7 +69,7 @@ function AppRoutes() {
         <Route
           path="admin/resources"
           element={
-            <ProtectedRoute adminOnly>
+            <ProtectedRoute allowedRoles={['admin']}>
               <AdminResourcesPage />
             </ProtectedRoute>
           }
