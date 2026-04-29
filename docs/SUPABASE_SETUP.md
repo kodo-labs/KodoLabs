@@ -54,8 +54,8 @@ Si queres mantener usuarios demo en Supabase:
 
 1. Ir a **Authentication > Users**.
 2. Crear:
-   - `valentina@bookdesk.co` / `1234`
-   - `admin@bookdesk.co` / `admin`
+   - `memberdemo@bookdesk.com` / `memberdemo`
+   - `admindemo@bookdesk.com` / `admindemo`
 3. En **Table Editor > profiles**, cambiar el campo `role` del admin a `admin`.
 
 ## 6. Reiniciar frontend

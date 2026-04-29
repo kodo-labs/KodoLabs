@@ -28,7 +28,7 @@ export default function RegisterPage() {
     <AuthShell>
       <section className="auth-card">
         <AuthLogo />
-        <h1 className="text-center text-3xl font-black tracking-normal text-[#11151b]">Create Account</h1>
+        <h1 className="text-center text-3xl font-black tracking-normal text-[#11151b]">Crear cuenta</h1>
         <p className="mx-auto mt-2 max-w-[230px] text-center text-xs font-medium leading-5 text-[#717786]">
           Crea tu acceso para reservar espacios en BookDesk.
         </p>
@@ -37,7 +37,7 @@ export default function RegisterPage() {
           <AuthInput
             value={name}
             onChange={e => setName(e.target.value)}
-            placeholder="Full Name"
+            placeholder="Nombre completo"
             icon={
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20 21a8 8 0 10-16 0" />
@@ -49,7 +49,7 @@ export default function RegisterPage() {
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder="Email Address"
+            placeholder="Correo electronico"
             icon={
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 4h16v16H4z" />
@@ -61,7 +61,7 @@ export default function RegisterPage() {
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            placeholder="Password"
+            placeholder="Contrasena"
             icon={
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M7 11V8a5 5 0 0110 0v3" />
@@ -77,14 +77,14 @@ export default function RegisterPage() {
           )}
 
           <button type="submit" disabled={loading} className="auth-primary-button">
-            {loading ? 'Creating...' : 'Register'}
+            {loading ? 'Creando...' : 'Registrarse'}
             <span aria-hidden="true">-&gt;</span>
           </button>
         </form>
 
         <div className="mt-5 text-center text-xs font-semibold">
           <Link to="/login" className="text-[#0058bc] hover:text-[#003f8f]">
-            Already have an account?
+            Ya tenes una cuenta?
           </Link>
         </div>
       </section>

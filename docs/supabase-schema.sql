@@ -123,3 +123,8 @@ values
   ('escritorio-b1', 'Escritorio B1', 'desk', 1, 2, array['Monitor 24"', 'Teclado'], 'Escritorio en planta alta, zona colaborativa.'),
   ('escritorio-b2', 'Escritorio B2', 'desk', 1, 2, array['Monitor 24"'], 'Escritorio en planta alta, cerca de la cocina.')
 on conflict (id) do nothing;
+
+-- Demo credentials suggested for Supabase Auth:
+-- memberdemo@bookdesk.com / memberdemo
+-- admindemo@bookdesk.com / admindemo
+-- Create them from Authentication > Users. Then set the admin profile role to admin.

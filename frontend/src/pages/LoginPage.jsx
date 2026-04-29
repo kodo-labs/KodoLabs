@@ -68,29 +68,18 @@ export default function LoginPage() {
     }
   }
 
-  function fillDemo(role) {
-    if (role === 'member') {
-      setEmail('valentina@bookdesk.co')
-      setPassword('1234')
-    } else {
-      setEmail('admin@bookdesk.co')
-      setPassword('admin')
-    }
-    setError('')
-  }
-
   return (
     <AuthShell>
       <section className="auth-card">
         <AuthLogo />
-        <h1 className="text-center text-3xl font-black tracking-normal text-[#11151b]">Welcome Back</h1>
+        <h1 className="text-center text-3xl font-black tracking-normal text-[#11151b]">Bienvenido de nuevo</h1>
 
         <form onSubmit={handleSubmit} className="mt-7 space-y-4">
           <AuthInput
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder="Email Address"
+            placeholder="Correo electronico"
             icon={
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 4h16v16H4z" />
@@ -102,7 +91,7 @@ export default function LoginPage() {
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            placeholder="Password"
+            placeholder="Contrasena"
             icon={
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M7 11V8a5 5 0 0110 0v3" />
@@ -118,20 +107,14 @@ export default function LoginPage() {
           )}
 
           <button type="submit" disabled={loading} className="auth-primary-button">
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Ingresando...' : 'Ingresar'}
             <span aria-hidden="true">-&gt;</span>
           </button>
         </form>
 
         <div className="mt-5 flex flex-col items-center gap-2 text-xs font-semibold">
-          <button type="button" onClick={() => fillDemo('member')} className="text-[#0058bc] hover:text-[#003f8f]">
-            Use member demo
-          </button>
-          <button type="button" onClick={() => fillDemo('admin')} className="text-[#9e3d00] hover:text-[#7c2e00]">
-            Use admin demo
-          </button>
           <Link to="/register" className="text-[#0058bc] hover:text-[#003f8f]">
-            Create Account
+            Crear cuenta
           </Link>
         </div>
       </section>

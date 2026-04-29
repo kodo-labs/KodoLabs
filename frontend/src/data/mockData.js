@@ -2,27 +2,27 @@
 export const USERS = [
   {
     id: 1,
-    name: 'Valentina López',
-    email: 'valentina@bookdesk.co',
-    password: '1234',
+    name: 'Miembro Demo',
+    email: 'memberdemo@bookdesk.com',
+    password: 'memberdemo',
     role: 'member',
-    avatar: 'VL',
+    avatar: 'MD',
   },
   {
     id: 2,
-    name: 'Marcos Díaz',
-    email: 'marcos@bookdesk.co',
+    name: 'Marcos Diaz',
+    email: 'marcos@bookdesk.com',
     password: '1234',
     role: 'member',
     avatar: 'MD',
   },
   {
     id: 3,
-    name: 'Admin BookDesk',
-    email: 'admin@bookdesk.co',
-    password: 'admin',
+    name: 'Admin Demo',
+    email: 'admindemo@bookdesk.com',
+    password: 'admindemo',
     role: 'admin',
-    avatar: 'AK',
+    avatar: 'AD',
   },
 ]
 

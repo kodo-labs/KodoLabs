@@ -112,7 +112,7 @@ function NavContent() {
         to="/login"
         className="rounded-full bg-[#0070eb] px-5 py-2.5 text-xs font-semibold text-white shadow-[0_10px_24px_rgba(0,112,235,0.32),inset_0_1px_0_rgba(255,255,255,0.28)] transition hover:bg-[#0058bc]"
       >
-        Get Started
+        Comenzar
       </Link>
     </>
   )
@@ -273,7 +273,7 @@ export default function LandingPage() {
                 to="/login"
                 className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#0070eb] px-7 py-3 text-sm font-semibold text-white shadow-[0_14px_28px_rgba(0,112,235,0.30),inset_0_1px_0_rgba(255,255,255,0.24)] transition hover:bg-[#0058bc]"
               >
-                Start for Free <span aria-hidden="true">-&gt;</span>
+                Comenzar gratis <span aria-hidden="true">-&gt;</span>
               </Link>
             </div>
           </div>

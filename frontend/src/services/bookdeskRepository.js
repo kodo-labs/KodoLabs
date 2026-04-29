@@ -1,6 +1,25 @@
 import { INITIAL_RESERVATIONS, USERS } from '../data/mockData'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 
+function translateAuthError(message) {
+  const normalized = message?.toLowerCase() ?? ''
+
+  if (normalized.includes('email not confirmed')) {
+    return 'Correo no confirmado.'
+  }
+  if (normalized.includes('invalid login credentials')) {
+    return 'Credenciales incorrectas.'
+  }
+  if (normalized.includes('user already registered') || normalized.includes('already registered')) {
+    return 'Ya existe una cuenta con ese correo.'
+  }
+  if (normalized.includes('password')) {
+    return 'La contrasena no cumple los requisitos.'
+  }
+
+  return message || 'Ocurrio un error. Intentalo nuevamente.'
+}
+
 function toReservation(row) {
   return {
     id: row.id,
@@ -32,7 +51,7 @@ function fromReservation(reservation) {
 export async function signIn(email, password) {
   if (isSupabaseConfigured) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) return { ok: false, error: error.message }
+    if (error) return { ok: false, error: translateAuthError(error.message) }
 
     const { data: profile } = await supabase
       .from('profiles')
@@ -76,7 +95,7 @@ export async function signUp({ name, email, password }) {
     },
   })
 
-  if (error) return { ok: false, error: error.message }
+  if (error) return { ok: false, error: translateAuthError(error.message) }
 
   if (data.user) {
     await supabase.from('profiles').upsert({
