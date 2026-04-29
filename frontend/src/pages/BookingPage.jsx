@@ -39,8 +39,8 @@ export default function BookingPage() {
     setSelectedEnd(endTime)
   }
 
-  function handleConfirm(title) {
-    const res = addReservation({
+  async function handleConfirm(title) {
+    const res = await addReservation({
       resourceId: selectedResourceId,
       userId: user.id,
       date: selectedDate,

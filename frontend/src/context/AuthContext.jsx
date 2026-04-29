@@ -1,21 +1,21 @@
 import { createContext, useContext, useState } from 'react'
-import { USERS } from '../data/mockData'
+import { signIn, signOut } from '../services/bookdeskRepository'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
 
-  function login(email, password) {
-    const found = USERS.find(u => u.email === email && u.password === password)
-    if (found) {
-      setUser(found)
-      return { ok: true }
+  async function login(email, password) {
+    const result = await signIn(email, password)
+    if (result.ok) {
+      setUser(result.user)
     }
-    return { ok: false, error: 'Credenciales incorrectas.' }
+    return result
   }
 
-  function logout() {
+  async function logout() {
+    await signOut()
     setUser(null)
   }
 

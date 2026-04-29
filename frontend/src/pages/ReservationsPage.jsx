@@ -19,8 +19,8 @@ export default function ReservationsPage() {
     ? myReservations
     : myReservations.filter(r => r.status === filter)
 
-  function handleCancel(id) {
-    cancelReservation(id)
+  async function handleCancel(id) {
+    await cancelReservation(id)
     setCancelConfirm(null)
   }
 

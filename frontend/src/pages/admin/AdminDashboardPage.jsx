@@ -30,8 +30,8 @@ export default function AdminDashboardPage() {
     return USERS.find(u => u.id === userId)?.name ?? 'Desconocido'
   }
 
-  function handleBlock() {
-    blockSlot(selectedResource, blockDate, blockStart, blockEnd)
+  async function handleBlock() {
+    await blockSlot(selectedResource, blockDate, blockStart, blockEnd)
     setShowBlockForm(false)
     setBlockSuccess(true)
     setTimeout(() => setBlockSuccess(false), 3000)

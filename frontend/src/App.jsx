@@ -2,7 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ReservationsProvider } from './context/ReservationsContext'
 import Layout from './components/layout/Layout'
+import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import BookingPage from './pages/BookingPage'
 import ReservationsPage from './pages/ReservationsPage'
@@ -19,7 +21,9 @@ function ProtectedRoute({ children, adminOnly = false }) {
 function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route
         path="/"
         element={
@@ -28,7 +32,6 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="booking" element={<BookingPage />} />
         <Route path="reservations" element={<ReservationsPage />} />
