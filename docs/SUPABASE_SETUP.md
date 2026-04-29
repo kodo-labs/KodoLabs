@@ -23,6 +23,7 @@ Esto crea:
 - Policies basicas
 - Trigger para crear perfiles automaticamente al registrar usuarios
 - Seed inicial de espacios BookDesk
+- Persistencia de reservas y recursos
 
 ## 3. Configurar Auth
 

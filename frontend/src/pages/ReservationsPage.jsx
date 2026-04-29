@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import TopBar from '../components/layout/TopBar'
 import Badge from '../components/common/Badge'
-import { RESOURCES, formatDate } from '../data/mockData'
+import { formatDate } from '../data/mockData'
 import { useReservations } from '../context/ReservationsContext'
 import { useAuth } from '../context/AuthContext'
+import { useResources } from '../context/ResourcesContext'
 
 export default function ReservationsPage() {
   const { user } = useAuth()
   const { reservations, cancelReservation } = useReservations()
+  const { resources } = useResources()
   const [filter, setFilter] = useState('all')
   const [cancelConfirm, setCancelConfirm] = useState(null)
 
@@ -70,7 +72,7 @@ export default function ReservationsPage() {
         ) : (
           <div className="space-y-3">
             {filtered.map(r => {
-              const res = RESOURCES.find(x => x.id === r.resourceId)
+              const res = resources.find(x => x.id === r.resourceId)
               const canCancel = r.status === 'confirmed' || r.status === 'pending'
               return (
                 <div

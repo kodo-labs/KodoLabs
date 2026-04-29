@@ -4,15 +4,16 @@ import TopBar from '../components/layout/TopBar'
 import ResourceCard from '../components/booking/ResourceCard'
 import WeeklyCalendar from '../components/calendar/WeeklyCalendar'
 import BookingModal from '../components/booking/BookingModal'
-import { RESOURCES, TIME_SLOTS } from '../data/mockData'
 import { useReservations } from '../context/ReservationsContext'
 import { useAuth } from '../context/AuthContext'
+import { useResources } from '../context/ResourcesContext'
 
 const STEPS = ['Recurso', 'Horario', 'Confirmar']
 
 export default function BookingPage() {
   const { user } = useAuth()
   const { reservations, addReservation } = useReservations()
+  const { resources } = useResources()
   const navigate = useNavigate()
 
   const [step, setStep] = useState(0)
@@ -24,11 +25,11 @@ export default function BookingPage() {
   const [showModal, setShowModal] = useState(false)
   const [success, setSuccess] = useState(null)
 
-  const resource = RESOURCES.find(r => r.id === selectedResourceId)
+  const resource = resources.find(r => r.id === selectedResourceId)
 
   const filteredResources = resourceType === 'all'
-    ? RESOURCES
-    : RESOURCES.filter(r => r.type === resourceType)
+    ? resources
+    : resources.filter(r => r.type === resourceType)
 
   function handleSlotClick(date, startTime) {
     const startHour = parseInt(startTime.split(':')[0])

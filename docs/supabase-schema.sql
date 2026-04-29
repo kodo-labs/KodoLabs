@@ -93,6 +93,25 @@ create policy "Resources are readable by everyone"
   to anon, authenticated
   using (true);
 
+drop policy if exists "Authenticated users can create resources" on public.resources;
+create policy "Authenticated users can create resources"
+  on public.resources for insert
+  to authenticated
+  with check (true);
+
+drop policy if exists "Authenticated users can update resources" on public.resources;
+create policy "Authenticated users can update resources"
+  on public.resources for update
+  to authenticated
+  using (true)
+  with check (true);
+
+drop policy if exists "Authenticated users can delete resources" on public.resources;
+create policy "Authenticated users can delete resources"
+  on public.resources for delete
+  to authenticated
+  using (true);
+
 drop policy if exists "Reservations are readable by authenticated users" on public.reservations;
 create policy "Reservations are readable by authenticated users"
   on public.reservations for select

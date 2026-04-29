@@ -2,9 +2,10 @@ import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopBar from '../components/layout/TopBar'
 import Badge from '../components/common/Badge'
-import { RESOURCES, formatDate } from '../data/mockData'
+import { formatDate } from '../data/mockData'
 import { useReservations } from '../context/ReservationsContext'
 import { useAuth } from '../context/AuthContext'
+import { useResources } from '../context/ResourcesContext'
 
 function MiniMetric({ label, value, tone = 'blue' }) {
   const tones = {
@@ -30,6 +31,7 @@ function MiniMetric({ label, value, tone = 'blue' }) {
 export default function DashboardPage() {
   const { user } = useAuth()
   const { reservations } = useReservations()
+  const { resources } = useResources()
   const navigate = useNavigate()
 
   const myReservations = useMemo(
@@ -42,7 +44,7 @@ export default function DashboardPage() {
     .sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime))
 
   const next = upcoming[0]
-  const nextResource = RESOURCES.find(r => r.id === next?.resourceId)
+  const nextResource = resources.find(r => r.id === next?.resourceId)
   const recent = myReservations
     .slice()
     .sort((a, b) => (b.date + b.startTime).localeCompare(a.date + a.startTime))
@@ -68,14 +70,14 @@ export default function DashboardPage() {
           <div className="relative overflow-hidden rounded-[28px] border border-white/80 bg-white/70 p-6 shadow-[0_26px_70px_rgba(35,55,95,0.10)] backdrop-blur md:p-8">
             <div className="absolute right-0 top-0 h-44 w-44 rounded-bl-[70px] bg-[linear-gradient(135deg,rgba(37,99,235,0.12),rgba(168,85,247,0.16))]" />
             <div className="relative max-w-xl">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#2563eb]">Cliente</p>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#2563eb]">Miembro</p>
               <h2 className="mt-3 text-3xl font-black tracking-normal text-[#202837] md:text-4xl">
                 {next ? 'Tu proxima reserva esta lista.' : 'Agenda tu proximo espacio.'}
               </h2>
               <p className="mt-3 max-w-lg text-sm font-semibold leading-6 text-[#667085]">
                 {next
-                  ? `${nextResource?.name} te espera el ${formatDate(next.date)} desde ${next.startTime}.`
-                  : 'Elegimos espacios comodos para que puedas reservar sin cruces ni vueltas.'}
+                  ? `${nextResource?.name ?? 'Tu recurso'} te espera el ${formatDate(next.date)} desde ${next.startTime}.`
+                  : 'Reserva salas y escritorios disponibles sin cruces de agenda.'}
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <button
@@ -95,11 +97,11 @@ export default function DashboardPage() {
           </div>
 
           <div className="rounded-[24px] border border-white/80 bg-white/70 p-5 shadow-[0_22px_60px_rgba(35,55,95,0.09)] backdrop-blur">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-[#8a94a6]">Membresia</p>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-[#8a94a6]">Espacios</p>
             <div className="mt-5 rounded-2xl bg-[linear-gradient(135deg,#f7faff,#f4edff)] p-5">
-              <p className="text-sm font-black text-[#202837]">Gold Member</p>
-              <p className="mt-2 text-3xl font-black text-[#111827]">1,250 pts</p>
-              <p className="mt-1 text-xs font-semibold text-[#7a8496]">Creditos disponibles</p>
+              <p className="text-sm font-black text-[#202837]">Disponibles para reservar</p>
+              <p className="mt-2 text-3xl font-black text-[#111827]">{resources.length}</p>
+              <p className="mt-1 text-xs font-semibold text-[#7a8496]">Salas y escritorios activos</p>
             </div>
           </div>
         </section>
@@ -108,7 +110,7 @@ export default function DashboardPage() {
           <div className="space-y-5">
             <div className="grid gap-4 sm:grid-cols-3">
               <MiniMetric label="Reservas activas" value={upcoming.length} />
-              <MiniMetric label="Sesiones totales" value={myReservations.length} tone="violet" />
+              <MiniMetric label="Reservas totales" value={myReservations.length} tone="violet" />
               <MiniMetric label="Confirmadas" value={myReservations.filter(r => r.status === 'confirmed').length} tone="green" />
             </div>
 
@@ -118,8 +120,8 @@ export default function DashboardPage() {
                 <button onClick={() => navigate('/reservations')} className="text-xs font-black text-[#2563eb]">Ver todas</button>
               </div>
               <div className="grid gap-3">
-                {(upcoming.length ? upcoming.slice(0, 3) : []).map(r => {
-                  const resource = RESOURCES.find(item => item.id === r.resourceId)
+                {upcoming.slice(0, 3).map(r => {
+                  const resource = resources.find(item => item.id === r.resourceId)
                   return (
                     <div key={r.id} className="flex items-center gap-4 rounded-2xl bg-white/80 p-4 shadow-sm">
                       <div className="grid h-12 w-12 place-items-center rounded-xl bg-blue-50 text-[#2563eb]">
@@ -150,7 +152,7 @@ export default function DashboardPage() {
             <h2 className="text-lg font-black text-[#202837]">Actividad reciente</h2>
             <div className="mt-5 space-y-4">
               {recent.map(r => {
-                const resource = RESOURCES.find(item => item.id === r.resourceId)
+                const resource = resources.find(item => item.id === r.resourceId)
                 return (
                   <div key={r.id} className="flex items-start gap-3">
                     <span className="mt-1 h-2.5 w-2.5 rounded-full bg-[#2563eb]" />

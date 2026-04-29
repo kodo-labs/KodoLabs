@@ -7,7 +7,7 @@ export default function TopBar({ title, subtitle, action }) {
   const onMenuClick = ctx.onMenuClick
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/70 bg-white/55 px-4 py-3 backdrop-blur-2xl md:px-8">
+    <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/70 bg-white/48 px-4 py-3 backdrop-blur-2xl md:px-8">
       <div className="flex min-w-0 items-center gap-3">
         <button
           onClick={onMenuClick}
@@ -26,6 +26,11 @@ export default function TopBar({ title, subtitle, action }) {
 
       <div className="flex shrink-0 items-center gap-2 md:gap-3">
         {action}
+        {user?.role === 'admin' && (
+          <span className="hidden rounded-full bg-blue-50 px-3 py-1 text-xs font-black text-[#2563eb] sm:inline-flex">
+            Administrador
+          </span>
+        )}
         <button className="hidden h-9 w-9 place-items-center rounded-full bg-white/70 text-[#667085] shadow-sm transition-colors hover:bg-white sm:grid" aria-label="Notificaciones">
           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />

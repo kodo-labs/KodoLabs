@@ -1,22 +1,25 @@
 import { useState } from 'react'
 import TopBar from '../../components/layout/TopBar'
 import Badge from '../../components/common/Badge'
-import { RESOURCES } from '../../data/mockData'
 import { useReservations } from '../../context/ReservationsContext'
+import { useResources } from '../../context/ResourcesContext'
 
 const emptyForm = { name: '', type: 'room', capacity: 4, floor: 1, description: '', amenities: '' }
 
 export default function AdminResourcesPage() {
   const { reservations } = useReservations()
-  const [resources, setResources] = useState(RESOURCES)
+  const { resources, addResource, saveResource, removeResource } = useResources()
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyForm)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [saveError, setSaveError] = useState('')
+  const [saving, setSaving] = useState(false)
 
   function openCreate() {
     setEditingId(null)
     setForm(emptyForm)
+    setSaveError('')
     setShowForm(true)
   }
 
@@ -30,10 +33,13 @@ export default function AdminResourcesPage() {
       description: resource.description,
       amenities: resource.amenities.join(', '),
     })
+    setSaveError('')
     setShowForm(true)
   }
 
-  function handleSave() {
+  async function handleSave() {
+    setSaveError('')
+    setSaving(true)
     const amenities = form.amenities.split(',').map(item => item.trim()).filter(Boolean)
     const payload = {
       ...form,
@@ -42,14 +48,29 @@ export default function AdminResourcesPage() {
       floor: Number(form.floor),
     }
 
-    if (editingId) {
-      setResources(prev => prev.map(resource => resource.id === editingId ? { ...resource, ...payload } : resource))
-    } else {
-      setResources(prev => [...prev, { id: `resource-${Date.now()}`, ...payload, image: null }])
+    try {
+      if (editingId) {
+        await saveResource({ id: editingId, ...payload })
+      } else {
+        await addResource({ id: `resource-${Date.now()}`, ...payload, image: null })
+      }
+      setShowForm(false)
+      setEditingId(null)
+    } catch (err) {
+      setSaveError(err.message)
+    } finally {
+      setSaving(false)
     }
+  }
 
-    setShowForm(false)
-    setEditingId(null)
+  async function handleDelete(id) {
+    setSaveError('')
+    try {
+      await removeResource(id)
+      setDeleteConfirm(null)
+    } catch (err) {
+      setSaveError(err.message)
+    }
   }
 
   function getReservationCount(resourceId) {
@@ -77,7 +98,7 @@ export default function AdminResourcesPage() {
             <div>
               <p className="text-xs font-black uppercase tracking-[0.18em] text-[#2563eb]">Inventario</p>
               <h2 className="mt-3 text-3xl font-black tracking-normal text-[#202837]">{resources.length} recursos activos</h2>
-              <p className="mt-2 text-sm font-semibold text-[#667085]">Administra capacidad, amenidades y recursos disponibles para reservas.</p>
+              <p className="mt-2 text-sm font-semibold text-[#667085]">Administra capacidad, amenidades y espacios disponibles para reservas.</p>
             </div>
             <button
               onClick={openCreate}
@@ -87,6 +108,12 @@ export default function AdminResourcesPage() {
             </button>
           </div>
         </section>
+
+        {saveError && (
+          <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+            {saveError}
+          </div>
+        )}
 
         {showForm && (
           <section className="mb-5 rounded-[24px] border border-white/80 bg-white/78 p-5 shadow-[0_22px_60px_rgba(35,55,95,0.08)] backdrop-blur">
@@ -103,8 +130,8 @@ export default function AdminResourcesPage() {
               <input value={form.amenities} onChange={e => setForm(f => ({ ...f, amenities: e.target.value }))} placeholder="Amenidades separadas por coma" className="rounded-xl border border-white bg-white/85 px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-200 md:col-span-2" />
             </div>
             <div className="mt-4 flex gap-2">
-              <button onClick={handleSave} disabled={!form.name.trim()} className="rounded-xl bg-[#2563eb] px-5 py-3 text-sm font-black text-white disabled:opacity-40">
-                Guardar
+              <button onClick={handleSave} disabled={!form.name.trim() || saving} className="rounded-xl bg-[#2563eb] px-5 py-3 text-sm font-black text-white disabled:opacity-40">
+                {saving ? 'Guardando...' : editingId ? 'Guardar cambios' : 'Crear recurso'}
               </button>
               <button onClick={() => setShowForm(false)} className="rounded-xl bg-white px-5 py-3 text-sm font-black text-[#667085]">
                 Cancelar
@@ -150,7 +177,7 @@ export default function AdminResourcesPage() {
                 <button onClick={() => openEdit(resource)} className="flex-1 rounded-xl bg-blue-50 px-3 py-2 text-xs font-black text-[#2563eb]">Editar</button>
                 {deleteConfirm === resource.id ? (
                   <>
-                    <button onClick={() => setResources(prev => prev.filter(item => item.id !== resource.id))} className="rounded-xl bg-red-500 px-3 py-2 text-xs font-black text-white">Si</button>
+                    <button onClick={() => handleDelete(resource.id)} className="rounded-xl bg-red-500 px-3 py-2 text-xs font-black text-white">Si</button>
                     <button onClick={() => setDeleteConfirm(null)} className="rounded-xl bg-white px-3 py-2 text-xs font-black text-[#667085]">No</button>
                   </>
                 ) : (

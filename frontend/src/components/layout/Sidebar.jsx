@@ -37,12 +37,12 @@ const icons = {
 
 const NAV_BY_ROLE = {
   member: [
-    { to: '/dashboard', label: 'Dashboard', icon: icons.dashboard },
+    { to: '/dashboard', label: 'Panel', icon: icons.dashboard },
     { to: '/booking', label: 'Reservar', icon: icons.booking },
     { to: '/reservations', label: 'Mis reservas', icon: icons.reservations },
   ],
   admin: [
-    { to: '/admin', label: 'Dashboard', icon: icons.dashboard },
+    { to: '/admin', label: 'Panel', icon: icons.dashboard, end: true },
     { to: '/admin/resources', label: 'Recursos', icon: icons.resources },
   ],
 }
@@ -60,24 +60,22 @@ export default function Sidebar({ open, onClose }) {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-30 flex w-[248px] flex-col border-r border-white/70 bg-white/72 p-4 text-[#202837] shadow-[18px_0_45px_rgba(35,55,95,0.08)] backdrop-blur-2xl transition-transform duration-200 md:relative md:translate-x-0 md:shadow-none ${
+      className={`fixed inset-y-0 left-0 z-30 flex w-[248px] flex-col border-r border-white/70 bg-white/68 p-4 text-[#202837] shadow-[18px_0_45px_rgba(35,55,95,0.08)] backdrop-blur-2xl transition-transform duration-200 md:relative md:translate-x-0 md:shadow-none ${
         open ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
       <div className="mb-8 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#2563eb] text-white shadow-[0_14px_30px_rgba(37,99,235,0.28)]">
+          <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#0070eb] text-white shadow-[0_14px_30px_rgba(0,112,235,0.28)]">
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2v20M2 12h20" />
-              <circle cx="12" cy="12" r="4" />
+              <path d="M7 7h10v10H7z" />
+              <path d="M4 10a6 6 0 016-6h7v7a6 6 0 01-6 6H4z" />
             </svg>
           </div>
           <div>
-            <p className="text-sm font-black leading-tight text-[#111827]">
-              {isAdmin ? 'Kodo Admin' : 'BookDesk'}
-            </p>
+            <p className="text-sm font-black leading-tight text-[#111827]">BookDesk</p>
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#7a8496]">
-              {isAdmin ? 'Management' : 'Coworking'}
+              {isAdmin ? 'Administracion' : 'Coworking'}
             </p>
           </div>
         </div>
@@ -93,12 +91,13 @@ export default function Sidebar({ open, onClose }) {
           <NavLink
             key={item.to}
             to={item.to}
+            end={item.end}
             onClick={onClose}
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold transition-all ${
                 isActive
-                  ? 'bg-[#2563eb] text-white shadow-[0_14px_28px_rgba(37,99,235,0.24)]'
-                  : 'text-[#667085] hover:bg-white hover:text-[#202837] hover:shadow-sm'
+                  ? 'bg-[#0070eb] text-white shadow-[0_14px_30px_rgba(0,112,235,0.24)]'
+                  : 'text-[#414755] hover:bg-white/75 hover:text-[#0058bc] hover:shadow-sm'
               }`
             }
           >
@@ -115,7 +114,7 @@ export default function Sidebar({ open, onClose }) {
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-black text-[#202837]">{user?.name}</p>
-            <p className="truncate text-[11px] font-semibold text-[#8a94a6]">{isAdmin ? 'Administrador' : 'Cliente'}</p>
+            <p className="truncate text-[11px] font-semibold text-[#8a94a6]">{isAdmin ? 'Administrador' : 'Miembro'}</p>
           </div>
         </div>
         <button

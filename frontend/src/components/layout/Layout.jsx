@@ -6,7 +6,7 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[linear-gradient(135deg,#eef5ff_0%,#f9fbff_42%,#f3edff_100%)] md:flex md:h-screen">
+    <div className="flex h-screen overflow-hidden bg-[radial-gradient(circle_at_50%_0%,rgba(0,112,235,0.10),transparent_30%),radial-gradient(circle_at_85%_15%,rgba(134,84,239,0.10),transparent_28%),linear-gradient(180deg,#fbfbff_0%,#f8f9ff_60%,#f7f8fb_100%)]">
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-20 bg-slate-950/30 backdrop-blur-sm md:hidden"

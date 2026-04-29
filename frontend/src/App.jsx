@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ReservationsProvider } from './context/ReservationsContext'
+import { ResourcesProvider } from './context/ResourcesContext'
 import Layout from './components/layout/Layout'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
@@ -83,11 +84,13 @@ function AppRoutes() {
 export default function App() {
   return (
     <AuthProvider>
-      <ReservationsProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </ReservationsProvider>
+      <ResourcesProvider>
+        <ReservationsProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </ReservationsProvider>
+      </ResourcesProvider>
     </AuthProvider>
   )
 }

@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import TopBar from '../../components/layout/TopBar'
 import Badge from '../../components/common/Badge'
 import WeeklyCalendar from '../../components/calendar/WeeklyCalendar'
-import { RESOURCES, USERS, formatDate } from '../../data/mockData'
+import { USERS, formatDate } from '../../data/mockData'
 import { useReservations } from '../../context/ReservationsContext'
+import { useResources } from '../../context/ResourcesContext'
 
 function AdminMetric({ label, value, detail, tone = 'blue' }) {
   const tones = {
@@ -24,7 +25,8 @@ function AdminMetric({ label, value, detail, tone = 'blue' }) {
 
 export default function AdminDashboardPage() {
   const { reservations, cancelReservation, blockSlot } = useReservations()
-  const [selectedResource, setSelectedResource] = useState(RESOURCES[0].id)
+  const { resources } = useResources()
+  const [selectedResource, setSelectedResource] = useState(resources[0]?.id ?? '')
   const [showBlockForm, setShowBlockForm] = useState(false)
   const [blockDate, setBlockDate] = useState('2026-04-07')
   const [blockStart, setBlockStart] = useState('08:00')
@@ -40,6 +42,12 @@ export default function AdminDashboardPage() {
       blocked: reservations.filter(r => r.isBlocked).length,
     }
   }, [reservations])
+
+  useEffect(() => {
+    if (!selectedResource && resources[0]) {
+      setSelectedResource(resources[0].id)
+    }
+  }, [resources, selectedResource])
 
   const recent = reservations
     .filter(r => !r.isBlocked)
@@ -91,7 +99,7 @@ export default function AdminDashboardPage() {
             <h2 className="text-lg font-black text-[#202837]">Actividad reciente</h2>
             <div className="mt-5 space-y-4">
               {recent.map(r => {
-                const resource = RESOURCES.find(item => item.id === r.resourceId)
+                const resource = resources.find(item => item.id === r.resourceId)
                 return (
                   <div key={r.id} className="flex items-start gap-3">
                     <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-[#2563eb]">
@@ -124,7 +132,7 @@ export default function AdminDashboardPage() {
                   onChange={e => setSelectedResource(e.target.value)}
                   className="rounded-xl border border-white bg-white/80 px-3 py-2 text-xs font-bold text-[#202837] shadow-sm outline-none focus:ring-2 focus:ring-blue-200"
                 >
-                  {RESOURCES.map(r => (
+                  {resources.map(r => (
                     <option key={r.id} value={r.id}>{r.name}</option>
                   ))}
                 </select>
@@ -145,7 +153,7 @@ export default function AdminDashboardPage() {
 
             {showBlockForm && (
               <div className="mb-4 rounded-2xl border border-amber-100 bg-amber-50/70 p-4">
-                <p className="mb-3 text-sm font-black text-amber-800">Bloquear {RESOURCES.find(r => r.id === selectedResource)?.name}</p>
+                <p className="mb-3 text-sm font-black text-amber-800">Bloquear {resources.find(r => r.id === selectedResource)?.name}</p>
                 <div className="grid gap-3 sm:grid-cols-3">
                   <select value={blockDate} onChange={e => setBlockDate(e.target.value)} className="rounded-xl border border-amber-100 bg-white px-3 py-2 text-xs font-bold">
                     <option value="2026-04-07">Lun 07/04</option>
@@ -179,7 +187,7 @@ export default function AdminDashboardPage() {
                   .filter(r => !r.isBlocked)
                   .sort((a, b) => (b.date + b.startTime).localeCompare(a.date + a.startTime))
                   .map(r => {
-                    const resource = RESOURCES.find(item => item.id === r.resourceId)
+                    const resource = resources.find(item => item.id === r.resourceId)
                     return (
                       <div key={r.id} className="border-b border-slate-100 p-4 last:border-0">
                         <div className="flex items-start justify-between gap-3">

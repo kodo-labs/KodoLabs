@@ -1,4 +1,4 @@
-import { INITIAL_RESERVATIONS, USERS } from '../data/mockData'
+import { INITIAL_RESERVATIONS, RESOURCES, USERS } from '../data/mockData'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 
 function translateAuthError(message) {
@@ -45,6 +45,32 @@ function fromReservation(reservation) {
     status: reservation.status,
     title: reservation.title,
     is_blocked: Boolean(reservation.isBlocked),
+  }
+}
+
+function toResource(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    capacity: row.capacity,
+    floor: row.floor,
+    amenities: row.amenities ?? [],
+    description: row.description ?? '',
+    image: row.image ?? null,
+  }
+}
+
+function fromResource(resource) {
+  return {
+    id: resource.id,
+    name: resource.name,
+    type: resource.type,
+    capacity: Number(resource.capacity),
+    floor: Number(resource.floor),
+    amenities: resource.amenities ?? [],
+    description: resource.description ?? '',
+    image: resource.image ?? null,
   }
 }
 
@@ -126,6 +152,57 @@ export async function fetchReservations() {
 
   if (error) throw error
   return data.map(toReservation)
+}
+
+export async function fetchResources() {
+  if (!isSupabaseConfigured) return RESOURCES
+
+  const { data, error } = await supabase
+    .from('resources')
+    .select('*')
+    .order('floor', { ascending: true })
+    .order('name', { ascending: true })
+
+  if (error) throw error
+  return data.map(toResource)
+}
+
+export async function createResource(resource) {
+  if (!isSupabaseConfigured) return resource
+
+  const { data, error } = await supabase
+    .from('resources')
+    .insert(fromResource(resource))
+    .select()
+    .single()
+
+  if (error) throw error
+  return toResource(data)
+}
+
+export async function updateResource(resource) {
+  if (!isSupabaseConfigured) return resource
+
+  const { data, error } = await supabase
+    .from('resources')
+    .update(fromResource(resource))
+    .eq('id', resource.id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return toResource(data)
+}
+
+export async function deleteResource(id) {
+  if (!isSupabaseConfigured) return
+
+  const { error } = await supabase
+    .from('resources')
+    .delete()
+    .eq('id', id)
+
+  if (error) throw error
 }
 
 export async function createReservation(reservation) {
