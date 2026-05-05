@@ -1,4 +1,6 @@
 // ─── Usuarios ────────────────────────────────────────────────────────────────
+import { getSlotReservation as findSlotReservation, isSlotOccupied as checkSlotOccupied } from '../utils/reservationRules'
+
 export const USERS = [
   {
     id: 1,
@@ -243,21 +245,9 @@ export function formatDate(dateStr) {
 }
 
 export function isSlotOccupied(reservations, resourceId, date, startTime) {
-  const slotHour = parseInt(startTime.split(':')[0])
-  return reservations.some(r => {
-    if (r.resourceId !== resourceId || r.date !== date || r.status === 'cancelled') return false
-    const rStart = parseInt(r.startTime.split(':')[0])
-    const rEnd = parseInt(r.endTime.split(':')[0])
-    return slotHour >= rStart && slotHour < rEnd
-  })
+  return checkSlotOccupied(reservations, resourceId, date, startTime)
 }
 
 export function getSlotReservation(reservations, resourceId, date, startTime) {
-  const slotHour = parseInt(startTime.split(':')[0])
-  return reservations.find(r => {
-    if (r.resourceId !== resourceId || r.date !== date || r.status === 'cancelled') return false
-    const rStart = parseInt(r.startTime.split(':')[0])
-    const rEnd = parseInt(r.endTime.split(':')[0])
-    return slotHour >= rStart && slotHour < rEnd
-  })
+  return findSlotReservation(reservations, resourceId, date, startTime)
 }
