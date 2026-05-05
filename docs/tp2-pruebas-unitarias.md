@@ -86,13 +86,9 @@ Pasos del workflow:
 ### Evidencias
 
 **Captura obligatoria del workflow en GitHub Actions:**  
-Pendiente de agregar luego del primer push con el workflow ejecutado correctamente.
+El workflow `Unit tests` se ejecuto correctamente en GitHub Actions luego del push del commit `266ee80`.
 
-Ruta sugerida para guardar la captura:
-
-```text
-docs/evidencias/tp2-github-actions.png
-```
+![Workflow de GitHub Actions ejecutado correctamente](./evidencias/tp2-github-actions.png)
 
 **Video breve de evidencia audiovisual:**  
 Pendiente de grabar y subir a YouTube como no listado.
