@@ -91,12 +91,12 @@ El workflow `Unit tests` se ejecuto correctamente en GitHub Actions luego del pu
 ![Workflow de GitHub Actions ejecutado correctamente](./evidencias/tp2-github-actions.png)
 
 **Video breve de evidencia audiovisual:**  
-Pendiente de grabar y subir a YouTube como no listado.
+Video grabado y subido a YouTube como no listado.
 
-Enlace pendiente:
+Enlace:
 
 ```text
-https://youtube.com/...
+https://youtu.be/HRHM5oJGmgQ?si=RKAZXx9qMte6IiSg
 ```
 
 ---
