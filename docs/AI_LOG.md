@@ -128,4 +128,30 @@ En el coloquio del TP1 y TP2 el docente puede abrir este archivo y preguntar sob
 * **Responsable:** [Scrum Master Olexyn, Franco Ian].
 * **¿Para qué se usó?:** Investigar la aplicación de estándares ISO (9241-11, 13407, 27001, 62443, 9001) al escenario de Coworking y estructurar el documento de análisis técnico.
 * **¿Qué generó la IA?:** Una tabla comparativa detallando cada estándar, su enfoque principal y una justificación de su aplicación al proyecto, además de un párrafo de conclusión vinculando patrones de diseño (Observer/Singleton).
+Registro de uso de IA (AI_LOG)
+
+Entrada 004 - Semana 8
+Herramienta: Gemini 3 Flash.
+
+Responsable: Dev Lead / QA - Tarnoski Santiago.
+
+¿Para qué se usó?: Estructurar la documentación técnica del TP2, definir casos de prueba basados en técnicas de caja negra y diseñar la estrategia de integración para Supabase.
+
+¿Qué generó la IA?:
+
+Redacción técnica de los conceptos de Clases de Equivalencia y Valores Límite aplicados al sistema de reservas.
+
+Diseño de la tabla de casos de prueba unitaria para las funciones críticas (isSlotOccupied, isValidReservationRange, etc.).
+
+Propuesta de diseño conceptual para pruebas de integración, identificando dependencias de Supabase Auth y Database.
+
+Configuración sugerida para el workflow de GitHub Actions (CI/CD).
+
+¿Qué modificamos y por qué?:
+
+Ajuste de Lógica de Negocio: Se modificaron los valores de los casos de prueba (ej. rangos horarios de 09:00 a 11:00) para asegurar que el sistema refleje que el minuto de fin de una reserva es el minuto de inicio disponible para la siguiente, evitando solapamientos innecesarios.
+
+Selección Tecnológica: Se descartaron sugerencias de librerías externas de testing (como Jest) para mantener la ligereza del proyecto utilizando exclusivamente Vitest, aprovechando que el stack ya cuenta con Vite.
+
+Simplificación de Mocks: Se acotaron los métodos de Supabase a mockear (únicamente select, insert y auth) para que el diseño de las pruebas de integración sea realista y ejecutable por el equipo en el tiempo restante del cuatrimestre.
 * **¿Qué modificamos y por qué?:** Se ajustó la conclusión para reflejar específicamente los patrones usados en nuestro código del TP1 y se filtró la información de la ISO 62443 para que solo mencionara la parte de infraestructura (IoT), ya que nuestro sistema es principalmente de gestión de software.  
