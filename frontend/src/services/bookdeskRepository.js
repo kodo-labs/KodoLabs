@@ -1,5 +1,6 @@
 import { INITIAL_RESERVATIONS, RESOURCES, USERS } from '../data/mockData'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
+import { withTimeout } from '../utils/async'
 
 function translateAuthError(message) {
   const normalized = message?.toLowerCase() ?? ''
@@ -15,6 +16,9 @@ function translateAuthError(message) {
   }
   if (normalized.includes('password')) {
     return 'La contrasena no cumple los requisitos.'
+  }
+  if (normalized.includes('failed to fetch') || normalized.includes('network')) {
+    return 'No se pudo conectar con Supabase. Revisa tu conexion e intenta nuevamente.'
   }
 
   return message || 'Ocurrio un error. Intentalo nuevamente.'
@@ -76,24 +80,42 @@ function fromResource(resource) {
 
 export async function signIn(email, password) {
   if (isSupabaseConfigured) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) return { ok: false, error: translateAuthError(error.message) }
+    try {
+      const { data, error } = await withTimeout(
+        supabase.auth.signInWithPassword({ email, password }),
+        15000,
+        'La conexion con Supabase demoro demasiado. Intentalo nuevamente.'
+      )
+      if (error) return { ok: false, error: translateAuthError(error.message) }
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', data.user.id)
-      .maybeSingle()
+      let profile = null
+      try {
+        const profileResult = await withTimeout(
+          supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .maybeSingle(),
+          10000,
+          'No se pudo cargar el perfil.'
+        )
+        profile = profileResult.data
+      } catch {
+        // Auth succeeded; use metadata defaults if the optional profile query fails.
+      }
 
-    return {
-      ok: true,
-      user: {
-        id: profile?.id ?? data.user.id,
-        name: profile?.name ?? data.user.email,
-        email: data.user.email,
-        role: profile?.role ?? 'member',
-        avatar: profile?.avatar ?? data.user.email?.slice(0, 2).toUpperCase(),
-      },
+      return {
+        ok: true,
+        user: {
+          id: profile?.id ?? data.user.id,
+          name: profile?.name ?? data.user.email,
+          email: data.user.email,
+          role: profile?.role ?? 'member',
+          avatar: profile?.avatar ?? data.user.email?.slice(0, 2).toUpperCase(),
+        },
+      }
+    } catch (error) {
+      return { ok: false, error: translateAuthError(error.message) }
     }
   }
 
@@ -111,11 +133,22 @@ export async function signOut() {
 export async function getUserFromSession(session) {
   const authUser = session?.user
   if (!authUser) return null
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', authUser.id)
-    .maybeSingle()
+  let profile = null
+
+  try {
+    const result = await withTimeout(
+      supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authUser.id)
+        .maybeSingle(),
+      10000,
+      'No se pudo cargar el perfil.'
+    )
+    profile = result.data
+  } catch {
+    // Keep the authenticated session usable with metadata defaults.
+  }
 
   return {
     id: profile?.id ?? authUser.id,
@@ -128,9 +161,17 @@ export async function getUserFromSession(session) {
 
 export async function getCurrentUser() {
   if (!isSupabaseConfigured) return null
-  const { data, error } = await supabase.auth.getSession()
-  if (error) return null
-  return getUserFromSession(data.session)
+  try {
+    const { data, error } = await withTimeout(
+      supabase.auth.getSession(),
+      10000,
+      'No se pudo restaurar la sesion.'
+    )
+    if (error) return null
+    return getUserFromSession(data.session)
+  } catch {
+    return null
+  }
 }
 
 export async function signUp({ name, email, password }) {

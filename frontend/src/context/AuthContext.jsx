@@ -22,15 +22,22 @@ export function AuthProvider({ children }) {
     restoreSession()
     if (!isSupabaseConfigured) return () => { active = false }
 
-    const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!active) return
       if (!session) {
         setUser(null)
         setLoading(false)
         return
       }
-      setUser(await getUserFromSession(session))
-      setLoading(false)
+
+      setTimeout(async () => {
+        if (!active) return
+        try {
+          setUser(await getUserFromSession(session))
+        } finally {
+          if (active) setLoading(false)
+        }
+      }, 0)
     })
 
     return () => {

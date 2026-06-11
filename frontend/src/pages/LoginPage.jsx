@@ -13,7 +13,7 @@ function AuthLogo() {
   )
 }
 
-function AuthInput({ icon, type = 'text', value, onChange, placeholder, required = true }) {
+function AuthInput({ icon, type = 'text', value, onChange, placeholder, required = true, autoComplete }) {
   return (
     <label className="auth-input-wrap">
       <span className="text-[#717786]">{icon}</span>
@@ -23,6 +23,7 @@ function AuthInput({ icon, type = 'text', value, onChange, placeholder, required
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        autoComplete={autoComplete}
         className="min-w-0 flex-1 bg-transparent text-xs font-medium text-[#414755] outline-none placeholder:text-[#8a909c]"
       />
     </label>
@@ -58,13 +59,18 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 400))
-    const result = await login(email, password)
-    setLoading(false)
-    if (result.ok) {
-      navigate(result.user.role === 'admin' ? '/admin' : '/dashboard')
-    } else {
-      setError(result.error)
+
+    try {
+      const result = await login(email, password)
+      if (result.ok) {
+        navigate(result.user.role === 'admin' ? '/admin' : '/dashboard')
+      } else {
+        setError(result.error)
+      }
+    } catch {
+      setError('No se pudo conectar con el servidor. Intentalo nuevamente.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -80,6 +86,7 @@ export default function LoginPage() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder="Correo electronico"
+            autoComplete="email"
             icon={
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 4h16v16H4z" />
@@ -92,6 +99,7 @@ export default function LoginPage() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="Contrasena"
+            autoComplete="current-password"
             icon={
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M7 11V8a5 5 0 0110 0v3" />
