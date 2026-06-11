@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 import { sendChatMessage } from '../../services/integratorApi'
 
-const STORAGE_KEY = 'bookdesk-chat-session'
+const STORAGE_KEY = 'bookdesk-chat-session-v2'
 const INITIAL_MESSAGE = {
   role: 'assistant',
-  content: 'Hola. Puedo ayudarte con recursos, disponibilidad, reservas y uso de BookDesk.',
+  content: 'Hola, soy Jemi. Puedo ayudarte con recursos, disponibilidad, reservas y uso de BookDesk.',
 }
 const QUICK_QUESTIONS = [
   'Que recursos estan disponibles?',
@@ -99,7 +99,7 @@ export default function ChatAssistant() {
                 </svg>
               </div>
               <div>
-                <h2 className="text-sm font-black text-[#202837]">Asistente BookDesk</h2>
+                <h2 className="text-sm font-black text-[#202837]">Jemi</h2>
                 <p className="text-[10px] font-bold text-emerald-600">Consulta, no ejecuta acciones</p>
               </div>
             </div>
@@ -170,7 +170,7 @@ export default function ChatAssistant() {
               onChange={event => setInput(event.target.value)}
               rows="1"
               maxLength="1000"
-              placeholder="Pregunta sobre BookDesk..."
+              placeholder="Preguntale a Jemi..."
               className="max-h-24 min-h-10 flex-1 resize-none rounded-xl border border-[#d8dce9] bg-[#f7f8fd] px-3 py-2.5 text-xs font-semibold text-[#202837] outline-none focus:border-[#0070eb] focus:ring-2 focus:ring-blue-100"
             />
             <button
@@ -190,7 +190,7 @@ export default function ChatAssistant() {
       <button
         onClick={() => setOpen(current => !current)}
         className="ml-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#0070eb] text-white shadow-[0_20px_44px_rgba(0,112,235,0.38)] transition-transform hover:-translate-y-1"
-        aria-label={open ? 'Cerrar asistente' : 'Abrir asistente BookDesk'}
+        aria-label={open ? 'Cerrar asistente' : 'Abrir a Jemi'}
       >
         <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           {open ? <path d="M18 6L6 18M6 6l12 12" /> : <><path d="M21 15a4 4 0 01-4 4H8l-5 3V7a4 4 0 014-4h10a4 4 0 014 4z" /><path d="M8 9h8M8 13h5" /></>}
