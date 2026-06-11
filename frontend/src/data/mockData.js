@@ -1,5 +1,5 @@
 // ─── Usuarios ────────────────────────────────────────────────────────────────
-import { getSlotReservation as findSlotReservation, isSlotOccupied as checkSlotOccupied } from '../utils/reservationRules'
+import { getSlotReservation as findSlotReservation, isSlotOccupied as checkSlotOccupied } from '../utils/reservationRules.js'
 
 export const USERS = [
   {

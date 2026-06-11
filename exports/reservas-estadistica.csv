@@ -1,0 +1,11 @@
+﻿ID de reserva,Fecha,Dia de semana,Recurso,Tipo,Piso,Capacidad,Hora de inicio,Hora de fin,Duracion en minutos,Estado,Es bloqueo,ID anonimizado del usuario
+r001,2026-04-07,martes,Sala Alpha,Sala,2,8,09:00,11:00,120,Confirmada,No,USR-340CA71C
+r002,2026-04-07,martes,Sala Alpha,Sala,2,8,14:00,16:00,120,Confirmada,No,USR-370CABD5
+r003,2026-04-09,jueves,Sala Alpha,Sala,2,8,10:00,12:00,120,Confirmada,No,USR-370CABD5
+r004,2026-04-08,miercoles,Sala Beta,Sala,1,4,11:00,13:00,120,Confirmada,No,USR-340CA71C
+r005,2026-04-10,viernes,Sala Beta,Sala,1,4,09:00,10:00,60,Pendiente,No,USR-370CABD5
+r006,2026-04-10,viernes,Sala Gamma,Sala,3,12,08:00,18:00,600,Confirmada,Si,USR-360CAA42
+r007,2026-04-11,sabado,Sala Gamma,Sala,3,12,10:00,13:00,180,Confirmada,No,USR-340CA71C
+r008,2026-04-07,martes,Escritorio A1,Escritorio,1,1,08:00,18:00,600,Confirmada,No,USR-370CABD5
+r009,2026-04-08,miercoles,Escritorio A2,Escritorio,1,1,08:00,14:00,360,Confirmada,No,USR-340CA71C
+r010,2026-04-09,jueves,Escritorio A3,Escritorio,1,1,09:00,17:00,480,Confirmada,No,USR-340CA71C

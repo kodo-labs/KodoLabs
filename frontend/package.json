@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "export:statistics": "node ../scripts/export-statistics.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",

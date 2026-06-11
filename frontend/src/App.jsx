@@ -11,9 +11,17 @@ import BookingPage from './pages/BookingPage'
 import ReservationsPage from './pages/ReservationsPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminResourcesPage from './pages/admin/AdminResourcesPage'
+import AdminReportsPage from './pages/admin/AdminReportsPage'
 
 function ProtectedRoute({ children, allowedRoles }) {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
+  if (loading) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-[#f9f9ff]">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-100 border-t-[#0070eb]" />
+      </div>
+    )
+  }
   if (!user) return <Navigate to="/login" replace />
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />
@@ -72,6 +80,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminResourcesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="admin/reports"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminReportsPage />
             </ProtectedRoute>
           }
         />

@@ -80,10 +80,21 @@ export default function BookingPage() {
             <p className="text-gray-500 mb-6">
               {success.date.slice(8)}/04 · {success.startTime}–{success.endTime}
             </p>
-            {/* Notificación Observer pattern */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm text-blue-700 mb-6 text-left">
-              <p className="font-semibold mb-1">Notificación enviada</p>
-              <p className="text-xs">El sistema (patrón Observer) notificó a los observadores registrados: confirmación por email y actualización del calendario.</p>
+            <div className={`mb-6 rounded-lg border px-4 py-3 text-left text-sm ${
+              success.notification?.ok
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                : 'border-amber-200 bg-amber-50 text-amber-800'
+            }`}>
+              <p className="mb-1 font-semibold">
+                {success.notification?.ok ? 'Correo de confirmacion enviado' : 'Reserva guardada'}
+              </p>
+              <p className="text-xs">
+                {success.notification?.ok
+                  ? 'La confirmacion fue enviada al correo asociado a tu cuenta.'
+                  : success.notification?.skipped
+                    ? 'Las notificaciones por email no estan disponibles en el modo demo.'
+                    : 'La reserva se actualizo, pero no se pudo enviar el correo.'}
+              </p>
             </div>
             <div className="flex gap-3">
               <button

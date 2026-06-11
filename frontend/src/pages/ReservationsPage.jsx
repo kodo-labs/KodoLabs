@@ -12,6 +12,7 @@ export default function ReservationsPage() {
   const { resources } = useResources()
   const [filter, setFilter] = useState('all')
   const [cancelConfirm, setCancelConfirm] = useState(null)
+  const [notice, setNotice] = useState(null)
 
   const myReservations = reservations
     .filter(r => r.userId === user.id)
@@ -22,7 +23,10 @@ export default function ReservationsPage() {
     : myReservations.filter(r => r.status === filter)
 
   async function handleCancel(id) {
-    await cancelReservation(id)
+    const notification = await cancelReservation(id)
+    setNotice(notification?.ok
+      ? { type: 'success', text: 'Reserva cancelada y correo enviado.' }
+      : { type: 'warning', text: 'La reserva se actualizo, pero no se pudo enviar el correo.' })
     setCancelConfirm(null)
   }
 
@@ -38,6 +42,15 @@ export default function ReservationsPage() {
       <TopBar title="Mis reservas" subtitle="Historial y estado de tus reservas." />
 
       <div className="p-6">
+        {notice && (
+          <div className={`mb-5 rounded-xl border px-4 py-3 text-sm font-bold ${
+            notice.type === 'success'
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+              : 'border-amber-200 bg-amber-50 text-amber-800'
+          }`}>
+            {notice.text}
+          </div>
+        )}
         {/* Filtros */}
         <div className="flex flex-wrap gap-2 mb-5">
           {[
