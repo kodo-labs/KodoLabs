@@ -32,6 +32,7 @@ export default function AdminDashboardPage() {
   const [blockStart, setBlockStart] = useState('08:00')
   const [blockEnd, setBlockEnd] = useState('18:00')
   const [blockSuccess, setBlockSuccess] = useState(false)
+  const [notificationNotice, setNotificationNotice] = useState(null)
 
   const stats = useMemo(() => {
     const realReservations = reservations.filter(r => !r.isBlocked)
@@ -65,6 +66,13 @@ export default function AdminDashboardPage() {
     setTimeout(() => setBlockSuccess(false), 3000)
   }
 
+  async function handleCancelReservation(id) {
+    const notification = await cancelReservation(id)
+    setNotificationNotice(notification?.ok
+      ? { type: 'success', text: 'Reserva cancelada y correo enviado al miembro.' }
+      : { type: 'warning', text: 'La reserva se actualizo, pero no se pudo enviar el correo.' })
+  }
+
   return (
     <div>
       <TopBar
@@ -81,6 +89,15 @@ export default function AdminDashboardPage() {
       />
 
       <div className="p-4 md:p-8">
+        {notificationNotice && (
+          <div className={`mb-5 rounded-2xl border px-4 py-3 text-sm font-bold ${
+            notificationNotice.type === 'success'
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+              : 'border-amber-200 bg-amber-50 text-amber-800'
+          }`}>
+            {notificationNotice.text}
+          </div>
+        )}
         <section className="grid gap-5 xl:grid-cols-[1fr_330px]">
           <div className="rounded-[28px] border border-white/80 bg-white/72 p-6 shadow-[0_26px_70px_rgba(35,55,95,0.10)] backdrop-blur md:p-8">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#2563eb]">Operacion</p>
@@ -199,7 +216,7 @@ export default function AdminDashboardPage() {
                         </div>
                         {r.status !== 'cancelled' && (
                           <button
-                            onClick={() => cancelReservation(r.id)}
+                            onClick={() => handleCancelReservation(r.id)}
                             className="mt-3 text-xs font-black text-red-500 transition-colors hover:text-red-700"
                           >
                             Cancelar reserva

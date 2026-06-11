@@ -108,6 +108,31 @@ export async function signOut() {
   }
 }
 
+export async function getUserFromSession(session) {
+  const authUser = session?.user
+  if (!authUser) return null
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', authUser.id)
+    .maybeSingle()
+
+  return {
+    id: profile?.id ?? authUser.id,
+    name: profile?.name ?? authUser.email,
+    email: authUser.email,
+    role: profile?.role ?? 'member',
+    avatar: profile?.avatar ?? authUser.email?.slice(0, 2).toUpperCase(),
+  }
+}
+
+export async function getCurrentUser() {
+  if (!isSupabaseConfigured) return null
+  const { data, error } = await supabase.auth.getSession()
+  if (error) return null
+  return getUserFromSession(data.session)
+}
+
 export async function signUp({ name, email, password }) {
   if (!isSupabaseConfigured) {
     return { ok: true }

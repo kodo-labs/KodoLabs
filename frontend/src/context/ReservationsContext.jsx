@@ -7,6 +7,7 @@ import {
   fetchReservations,
   updateReservationStatus,
 } from '../services/bookdeskRepository'
+import { sendReservationNotification } from '../services/integratorApi'
 
 const ReservationsContext = createContext(null)
 
@@ -56,7 +57,8 @@ export function ReservationsProvider({ children }) {
     }
     const saved = await createReservation(newRes)
     setReservations(prev => [...prev, saved])
-    return saved
+    const notification = await sendReservationNotification('confirmed', saved.id)
+    return { ...saved, notification }
   }
 
   async function cancelReservation(id) {
@@ -64,13 +66,14 @@ export function ReservationsProvider({ children }) {
     setReservations(prev =>
       prev.map(r => r.id === id ? { ...r, status: 'cancelled' } : r)
     )
+    return sendReservationNotification('cancelled', id)
   }
 
   async function blockSlot(resourceId, date, startTime, endTime) {
     const blocked = {
       id: `block-${Date.now()}`,
       resourceId,
-      userId: 3, // admin
+      userId: user?.id ?? 'admin',
       date,
       startTime,
       endTime,

@@ -29,3 +29,39 @@ Caso de uso a desarrollar: Un miembro elige un recurso (sala o escritorio) un ho
 ### Enlaces
 
 - **Tablero Kanban (GitHub Projects): https://github.com/users/francoolexyn/projects/3/views/1
+
+## Mejora integradora
+
+BookDesk incorpora una capa de asistencia y comunicacion inteligente:
+
+- Emails reales con Resend al confirmar o cancelar reservas.
+- Auditoria de envios y campana de notificaciones.
+- Asistente con Claude limitado al dominio del coworking y a los datos autorizados.
+- Panel administrador de reportes con filtros y exportacion CSV anonimizada.
+- Vercel Functions para mantener las claves fuera del bundle de React.
+
+### Ejecucion local
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Las funciones `/api` requieren Vercel Dev o un despliegue Preview:
+
+```bash
+npx vercel dev
+```
+
+### Verificacion
+
+```bash
+cd frontend
+npm test
+npm run build
+npm run export:statistics
+```
+
+La configuracion completa esta en
+[`docs/MEJORA_INTEGRADORA_SETUP.md`](docs/MEJORA_INTEGRADORA_SETUP.md).

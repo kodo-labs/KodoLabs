@@ -39,6 +39,19 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'admin'
+  );
+$$;
+
 create table if not exists public.resources (
   id text primary key,
   name text not null,
@@ -64,15 +77,54 @@ create table if not exists public.reservations (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.notification_logs (
+  id text primary key,
+  reservation_id text not null references public.reservations(id) on delete cascade,
+  user_id text not null,
+  actor_id text not null,
+  channel text not null default 'email' check (channel in ('email')),
+  recipient_email text not null,
+  event text not null check (event in ('confirmed', 'cancelled')),
+  status text not null default 'processing' check (status in ('processing', 'sent', 'failed')),
+  provider_id text,
+  error text,
+  read_at timestamptz,
+  sent_at timestamptz,
+  created_at timestamptz not null default now(),
+  constraint notification_logs_reservation_event_key unique (reservation_id, event)
+);
+
+alter table public.notification_logs
+  add column if not exists channel text not null default 'email';
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.notification_logs'::regclass
+      and contype = 'u'
+      and pg_get_constraintdef(oid) = 'UNIQUE (reservation_id, event)'
+  ) then
+    alter table public.notification_logs
+      add constraint notification_logs_reservation_event_key
+      unique (reservation_id, event);
+  end if;
+end $$;
+
 alter table public.profiles enable row level security;
 alter table public.resources enable row level security;
 alter table public.reservations enable row level security;
+alter table public.notification_logs enable row level security;
 
 drop policy if exists "Profiles are readable by authenticated users" on public.profiles;
-create policy "Profiles are readable by authenticated users"
+drop policy if exists "Users read own profile and admins read all" on public.profiles;
+create policy "Users read own profile and admins read all"
   on public.profiles for select
   to authenticated
-  using (true);
+  using (
+    auth.uid() = id
+    or public.is_admin()
+  );
 
 drop policy if exists "Users can insert own profile" on public.profiles;
 create policy "Users can insert own profile"
@@ -94,42 +146,63 @@ create policy "Resources are readable by everyone"
   using (true);
 
 drop policy if exists "Authenticated users can create resources" on public.resources;
-create policy "Authenticated users can create resources"
+drop policy if exists "Admins can create resources" on public.resources;
+create policy "Admins can create resources"
   on public.resources for insert
   to authenticated
-  with check (true);
+  with check (public.is_admin());
 
 drop policy if exists "Authenticated users can update resources" on public.resources;
-create policy "Authenticated users can update resources"
+drop policy if exists "Admins can update resources" on public.resources;
+create policy "Admins can update resources"
   on public.resources for update
   to authenticated
-  using (true)
-  with check (true);
+  using (public.is_admin())
+  with check (public.is_admin());
 
 drop policy if exists "Authenticated users can delete resources" on public.resources;
-create policy "Authenticated users can delete resources"
+drop policy if exists "Admins can delete resources" on public.resources;
+create policy "Admins can delete resources"
   on public.resources for delete
   to authenticated
-  using (true);
+  using (public.is_admin());
 
 drop policy if exists "Reservations are readable by authenticated users" on public.reservations;
-create policy "Reservations are readable by authenticated users"
+drop policy if exists "Users read own reservations and admins read all" on public.reservations;
+create policy "Users read own reservations and admins read all"
   on public.reservations for select
   to authenticated
-  using (true);
+  using (
+    user_id = auth.uid()::text
+    or public.is_admin()
+  );
 
 drop policy if exists "Authenticated users can create reservations" on public.reservations;
-create policy "Authenticated users can create reservations"
+drop policy if exists "Users create own reservations and admins create blocks" on public.reservations;
+create policy "Users create own reservations and admins create blocks"
   on public.reservations for insert
   to authenticated
-  with check (true);
+  with check (
+    user_id = auth.uid()::text
+    or (
+      is_blocked = true
+      and public.is_admin()
+    )
+  );
 
 drop policy if exists "Authenticated users can update reservations" on public.reservations;
-create policy "Authenticated users can update reservations"
+drop policy if exists "Users update own reservations and admins update all" on public.reservations;
+create policy "Users update own reservations and admins update all"
   on public.reservations for update
   to authenticated
-  using (true)
-  with check (true);
+  using (
+    user_id = auth.uid()::text
+    or public.is_admin()
+  )
+  with check (
+    user_id = auth.uid()::text
+    or public.is_admin()
+  );
 
 insert into public.resources (id, name, type, capacity, floor, amenities, description)
 values

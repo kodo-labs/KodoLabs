@@ -33,6 +33,11 @@ const icons = {
       <path d="M9 7h1M14 7h1M9 11h1M14 11h1M10 21v-5h4v5" />
     </svg>
   ),
+  reports: (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M4 19V9M10 19V5M16 19v-7M22 19H2" />
+    </svg>
+  ),
 }
 
 const NAV_BY_ROLE = {
@@ -44,6 +49,7 @@ const NAV_BY_ROLE = {
   admin: [
     { to: '/admin', label: 'Panel', icon: icons.dashboard, end: true },
     { to: '/admin/resources', label: 'Recursos', icon: icons.resources },
+    { to: '/admin/reports', label: 'Reportes', icon: icons.reports },
   ],
 }
 

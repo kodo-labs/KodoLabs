@@ -1,5 +1,6 @@
 import { useOutletContext } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import NotificationBell from '../notifications/NotificationBell'
 
 export default function TopBar({ title, subtitle, action }) {
   const { user } = useAuth()
@@ -31,12 +32,7 @@ export default function TopBar({ title, subtitle, action }) {
             Administrador
           </span>
         )}
-        <button className="hidden h-9 w-9 place-items-center rounded-full bg-white/70 text-[#667085] shadow-sm transition-colors hover:bg-white sm:grid" aria-label="Notificaciones">
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-            <path d="M13.73 21a2 2 0 01-3.46 0" />
-          </svg>
-        </button>
+        <NotificationBell />
         <div className="grid h-9 w-9 place-items-center rounded-full bg-[#111827] text-xs font-black text-white shadow-sm">
           {user?.avatar}
         </div>
