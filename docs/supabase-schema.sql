@@ -52,6 +52,28 @@ as $$
   );
 $$;
 
+create or replace function public.protect_profile_role()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.role is distinct from old.role
+    and auth.role() is not null
+    and auth.role() <> 'service_role' then
+    raise exception 'Only the server can change profile roles.';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists protect_profile_role_update on public.profiles;
+create trigger protect_profile_role_update
+  before update on public.profiles
+  for each row execute function public.protect_profile_role();
+
 create table if not exists public.resources (
   id text primary key,
   name text not null,

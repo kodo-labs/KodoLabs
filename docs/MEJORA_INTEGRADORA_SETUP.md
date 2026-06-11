@@ -12,6 +12,7 @@ Endpoints:
 - `GET /api/notifications`
 - `POST /api/notifications`
 - `POST /api/chat`
+- `PATCH /api/admin/profiles/role` (solo administradores)
 
 ## 1. Supabase
 
@@ -21,6 +22,10 @@ Endpoints:
    `notification_logs`.
 4. Verificar que RLS este habilitado.
 5. En Project Settings > API Keys copiar la clave secreta `service_role`.
+
+El trigger `protect_profile_role_update` impide que un miembro cambie su propio
+rol desde el navegador. Los cambios de rol pasan por el endpoint administrativo,
+que valida el JWT y exige que quien realiza la accion ya sea administrador.
 
 La clave `service_role` solo se configura en Vercel como
 `SUPABASE_SERVICE_ROLE_KEY`. Nunca debe comenzar con `VITE_`.
