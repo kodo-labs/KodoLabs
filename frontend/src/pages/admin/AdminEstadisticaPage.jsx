@@ -251,10 +251,10 @@ export default function AdminEstadisticaPage() {
 
     const xMin = Math.min(...raw.usuariosActivos) - 2
     const xMax = Math.max(...raw.usuariosActivos) + 2
-    const datosRecta = [
-      { usuarios: xMin, prediccion: reg.b0 + reg.b1 * xMin },
-      { usuarios: xMax, prediccion: reg.b0 + reg.b1 * xMax },
-    ]
+    const datosRecta = []
+    for (let x = xMin; x <= xMax; x += 1) {
+      datosRecta.push({ usuarios: x, regresion: Math.round((reg.b0 + reg.b1 * x) * 100) / 100 })
+    }
 
     return { datos: raw, est, tablaFreq, reg, inf, datosHistograma, datosTipo, datosDispersion, datosRecta }
   }, [])
@@ -445,19 +445,18 @@ export default function AdminEstadisticaPage() {
             {/* Diagrama de dispersión */}
             <h3 className="text-sm font-black text-[#414755] mb-3">a) Diagrama de dispersión con recta de regresión</h3>
             <ResponsiveContainer width="100%" height={350}>
-              <ScatterChart>
+              <ComposedChart data={datosRecta}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="usuarios" name="Usuarios activos" type="number" tick={{ fontSize: 11 }}
-                  label={{ value: 'Usuarios Activos (X)', position: 'insideBottom', offset: -5, style: { fontSize: 11 } }} />
-                <YAxis dataKey="reservas" name="Reservas" type="number" tick={{ fontSize: 11 }}
+                <XAxis dataKey="usuarios" type="number" tick={{ fontSize: 11 }}
+                  label={{ value: 'Usuarios Activos (X)', position: 'insideBottom', offset: -5, style: { fontSize: 11 } }}
+                  domain={['dataMin', 'dataMax']} />
+                <YAxis type="number" tick={{ fontSize: 11 }}
                   label={{ value: 'Reservas (Y)', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }} />
-                <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                <Scatter data={datosDispersion} fill="#2563eb" fillOpacity={0.7} r={5} name="Observaciones" />
-                <ReferenceLine
-                  segment={datosRecta.map(d => ({ x: d.usuarios, y: d.prediccion }))}
-                  stroke="#ef4444" strokeWidth={2}
-                />
-              </ScatterChart>
+                <Tooltip />
+                <Legend />
+                <Line data={datosRecta} dataKey="regresion" stroke="#ef4444" strokeWidth={2} dot={false} name={`ŷ = ${reg.b0.toFixed(2)} + ${reg.b1.toFixed(2)}x`} />
+                <Scatter data={datosDispersion} dataKey="reservas" fill="#2563eb" fillOpacity={0.8} r={5} name="Observaciones" />
+              </ComposedChart>
             </ResponsiveContainer>
 
             {/* Ecuación y coeficientes */}
