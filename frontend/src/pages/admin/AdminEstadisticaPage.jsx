@@ -431,6 +431,7 @@ export default function AdminEstadisticaPage() {
           <h2 className="text-lg font-black text-[#202837] mb-1">¿Más usuarios = más reservas?</h2>
           <p className="text-xs text-[#667085] mb-5">Relación entre la cantidad de usuarios activos por día y las reservas generadas (30 días analizados).</p>
 
+          <p className="text-xs font-bold text-[#667085] uppercase mb-2">Diagrama de dispersión</p>
           <ResponsiveContainer width="100%" height={350}>
             <ComposedChart data={datosRecta}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -441,7 +442,6 @@ export default function AdminEstadisticaPage() {
                 label={{ value: 'Reservas del día', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }} />
               <Tooltip />
               <Legend />
-              <Line data={datosRecta} dataKey="regresion" stroke="#ef4444" strokeWidth={2} dot={false} name="Tendencia" />
               <Scatter data={datosDispersion} dataKey="reservas" fill="#2563eb" fillOpacity={0.8} r={5} name="Datos reales" />
             </ComposedChart>
           </ResponsiveContainer>
@@ -506,6 +506,26 @@ export default function AdminEstadisticaPage() {
               <Formula>r² = r × r</Formula>
               <p>r² = {reg.r.toFixed(4)}² = <b>{reg.r2.toFixed(4)}</b></p>
               <p>El <b>{(reg.r2 * 100).toFixed(2)}%</b> de la variabilidad en las reservas queda explicada por la cantidad de usuarios activos.</p>
+            </Paso>
+            <Paso numero={6} titulo="Diagrama de dispersión con recta de regresión">
+              <p>Superponemos la recta ŷ = {reg.b1.toFixed(2)}x + {reg.b0.toFixed(2)} sobre los datos originales para visualizar el ajuste del modelo:</p>
+              <div className="mt-3 bg-white rounded-lg p-2">
+                <ResponsiveContainer width="100%" height={300}>
+                  <ComposedChart data={datosRecta}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="usuarios" type="number" tick={{ fontSize: 11 }}
+                      label={{ value: 'Usuarios activos por día', position: 'insideBottom', offset: -5, style: { fontSize: 11 } }}
+                      domain={['dataMin', 'dataMax']} />
+                    <YAxis type="number" tick={{ fontSize: 11 }}
+                      label={{ value: 'Reservas del día', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }} />
+                    <Tooltip />
+                    <Legend />
+                    <Line data={datosRecta} dataKey="regresion" stroke="#ef4444" strokeWidth={2} dot={false} name="Recta de regresión" />
+                    <Scatter data={datosDispersion} dataKey="reservas" fill="#2563eb" fillOpacity={0.8} r={5} name="Datos reales" />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="mt-2">La cercanía de los puntos a la recta confirma visualmente el buen ajuste (r² = {(reg.r2 * 100).toFixed(0)}%).</p>
             </Paso>
           </Desarrollo>
         </Card>
