@@ -48,7 +48,7 @@ La idea surgió de que en el coworking donde uno de nosotros trabaja, las reserv
 
 Para el análisis estadístico nos enfocamos en la duración de las reservas como variable principal, porque nos pareció que es un dato útil para entender cómo se usa el espacio. También analizamos si hay relación entre la cantidad de usuarios conectados en un día y cuántas reservas se generan.
 
-Trabajamos con datos simulados (50 observaciones para lo descriptivo y 30 para regresión) porque el sistema todavía no tiene suficiente historial real. Los datos los armamos tratando de que reflejen patrones de uso creíbles: reuniones cortas, jornadas parciales, jornadas completas, etc. Los cálculos los realizamos a mano aplicando las fórmulas vistas en clase, y después integramos los resultados en un módulo visual dentro de BookDesk para que el administrador pueda consultarlos.
+Trabajamos con datos simulados (50 observaciones para lo descriptivo y 30 para regresión) porque el sistema todavía no tiene suficiente historial real. Los datos los armamos tratando de que reflejen patrones de uso creíbles: reuniones cortas, jornadas parciales, jornadas completas, etc. Los resultados del análisis después los integramos en un módulo visual dentro de BookDesk para que el administrador pueda consultarlos.
 
 % ═══════════════════════════════════════════════════════════════════════
 \section{Recolección y organización de datos}
@@ -76,7 +76,7 @@ Generamos una muestra de $n = 50$ reservas simulando los distintos tipos de uso 
   \item Reservas rápidas de salas para llamadas o entrevistas (1 a 1,5 horas).
 \end{itemize}
 
-Usamos semillas fijas en el generador de datos para que los resultados sean reproducibles cada vez que se accede al módulo.
+Los datos se mantienen fijos para que los resultados sean siempre reproducibles.
 
 \subsection{Organización de datos}
 
@@ -421,7 +421,7 @@ También estuvo bueno poder volcar los resultados en el sistema como una secció
 \vspace{1cm}
 \noindent\textbf{Herramientas utilizadas:}
 \begin{itemize}[itemsep=4pt]
-  \item Calculadora científica y planilla de cálculo para verificar los resultados.
+  \item Calculadora científica para los cálculos.
   \item React 18 con Recharts para la presentación visual de los resultados en el sistema.
   \item Supabase (PostgreSQL) como base de datos del sistema.
   \item Vercel para el despliegue de la aplicación.
