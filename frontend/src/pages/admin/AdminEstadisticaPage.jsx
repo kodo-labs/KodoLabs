@@ -207,10 +207,12 @@ function Formula({ children }) {
 const COLORS = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6']
 
 export default function AdminEstadisticaPage() {
-  const { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta, puntosInterpolados, duracionesRaw, tiposRaw } = useMemo(() => {
+  const { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta, puntosInterpolados, duracionesRaw, tiposRaw, usuariosRaw, reservasRaw } = useMemo(() => {
     const raw = generarDatos()
     const duracionesRaw = raw.duraciones
     const tiposRaw = raw.tipos
+    const usuariosRaw = raw.usuariosActivos
+    const reservasRaw = raw.reservasDiarias
     const est = calcularEstadisticas(raw.duraciones)
     const reg = calcularRegresion(raw.usuariosActivos, raw.reservasDiarias)
     const inf = calcularInferencia(est)
@@ -247,7 +249,7 @@ export default function AdminEstadisticaPage() {
       y: Math.round((reg.b0 + reg.b1 * x) * 100) / 100,
     }))
 
-    return { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta, puntosInterpolados, duracionesRaw, tiposRaw }
+    return { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta, puntosInterpolados, duracionesRaw, tiposRaw, usuariosRaw, reservasRaw }
   }, [])
 
   const histograma = histData.clases
@@ -431,7 +433,32 @@ export default function AdminEstadisticaPage() {
           <h2 className="text-lg font-black text-[#202837] mb-1">¿Más usuarios = más reservas?</h2>
           <p className="text-xs text-[#667085] mb-5">Relación entre la cantidad de usuarios activos por día y las reservas generadas (30 días analizados).</p>
 
-          <p className="text-xs font-bold text-[#667085] uppercase mb-2">Diagrama de dispersión</p>
+          <Desarrollo>
+            <p className="font-bold text-[#202837] mb-2">Datos utilizados — {reg.n} días de operación</p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-blue-200">
+                    <th className="text-left py-1 pr-3">Día</th>
+                    <th className="text-right py-1 pr-3">Usuarios activos (x)</th>
+                    <th className="text-right py-1">Reservas (y)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usuariosRaw.map((u, i) => (
+                    <tr key={i} className="border-b border-blue-100/50">
+                      <td className="py-1 pr-3 text-[#8a94a6]">{i + 1}</td>
+                      <td className="text-right py-1 pr-3">{u}</td>
+                      <td className="text-right py-1">{reservasRaw[i]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-3 text-xs text-[#8a94a6]">Los datos están ordenados por cantidad de usuarios activos de menor a mayor. Rango de usuarios: {usuariosRaw[0]} a {usuariosRaw[usuariosRaw.length - 1]}.</p>
+          </Desarrollo>
+
+          <p className="text-xs font-bold text-[#667085] uppercase mb-2 mt-5">Diagrama de dispersión</p>
           <ResponsiveContainer width="100%" height={350}>
             <ComposedChart data={datosRecta}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
