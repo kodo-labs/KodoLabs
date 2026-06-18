@@ -437,11 +437,11 @@ export default function AdminEstadisticaPage() {
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="border-b border-blue-200">
-                      <th className="text-right py-1 pr-4">Σx</th>
-                      <th className="text-right py-1 pr-4">Σy</th>
-                      <th className="text-right py-1 pr-4">Σxy</th>
-                      <th className="text-right py-1 pr-4">Σx²</th>
-                      <th className="text-right py-1">Σy²</th>
+                      <th className="text-right py-1 pr-4">Σxᵢ</th>
+                      <th className="text-right py-1 pr-4">Σyᵢ</th>
+                      <th className="text-right py-1 pr-4">Σxᵢyᵢ</th>
+                      <th className="text-right py-1 pr-4">Σxᵢ²</th>
+                      <th className="text-right py-1">Σyᵢ²</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -457,24 +457,21 @@ export default function AdminEstadisticaPage() {
               </div>
               <p className="mt-2">x̄ = {reg.sumX} / {reg.n} = {reg.xMean.toFixed(2)} &nbsp;&nbsp;|&nbsp;&nbsp; ȳ = {reg.sumY} / {reg.n} = {reg.yMean.toFixed(2)}</p>
             </Paso>
-            <Paso numero={2} titulo="Cálculo de Sxy, Sxx, Syy">
-              <Formula>Sxy = Σ(xᵢ − x̄)(yᵢ − ȳ)</Formula>
-              <p>Sxy = {reg.sxy.toFixed(4)}</p>
-              <Formula>Sxx = Σ(xᵢ − x̄)²</Formula>
-              <p>Sxx = {reg.sxx.toFixed(4)}</p>
-              <Formula>Syy = Σ(yᵢ − ȳ)²</Formula>
-              <p>Syy = {reg.syy.toFixed(4)}</p>
+            <Paso numero={2} titulo="Pendiente (m)">
+              <Formula>m = (Σxᵢyᵢ − n · x̄ · ȳ) / (Σxᵢ² − n · x̄²)</Formula>
+              <p>Numerador (covarianza): Σxᵢyᵢ − n · x̄ · ȳ = {reg.sumXY} − {reg.n} × {reg.xMean.toFixed(2)} × {reg.yMean.toFixed(2)} = <b>{(reg.sumXY - reg.n * reg.xMean * reg.yMean).toFixed(4)}</b></p>
+              <p>Denominador (varianza de x): Σxᵢ² − n · x̄² = {reg.sumX2} − {reg.n} × {reg.xMean.toFixed(2)}² = <b>{(reg.sumX2 - reg.n * reg.xMean * reg.xMean).toFixed(4)}</b></p>
+              <p>m = {(reg.sumXY - reg.n * reg.xMean * reg.yMean).toFixed(4)} / {(reg.sumX2 - reg.n * reg.xMean * reg.xMean).toFixed(4)} = <b>{reg.b1.toFixed(4)}</b></p>
             </Paso>
-            <Paso numero={3} titulo="Coeficientes de la recta de regresión">
-              <Formula>b₁ = Sxy / Sxx</Formula>
-              <p>b₁ = {reg.sxy.toFixed(4)} / {reg.sxx.toFixed(4)} = <b>{reg.b1.toFixed(4)}</b></p>
-              <Formula>b₀ = ȳ − b₁ × x̄</Formula>
-              <p>b₀ = {reg.yMean.toFixed(2)} − {reg.b1.toFixed(4)} × {reg.xMean.toFixed(2)} = <b>{reg.b0.toFixed(4)}</b></p>
-              <p className="mt-1">Ecuación de la recta: <b>ŷ = {reg.b0.toFixed(2)} + {reg.b1.toFixed(2)}x</b></p>
+            <Paso numero={3} titulo="Ordenada al origen (b)">
+              <Formula>b = ȳ − m · x̄</Formula>
+              <p>b = {reg.yMean.toFixed(2)} − {reg.b1.toFixed(4)} × {reg.xMean.toFixed(2)} = <b>{reg.b0.toFixed(4)}</b></p>
+              <p className="mt-1">Ecuación de la recta: <b>ŷ = {reg.b1.toFixed(2)}x + {reg.b0.toFixed(2)}</b></p>
             </Paso>
             <Paso numero={4} titulo="Coeficiente de correlación de Pearson">
-              <Formula>r = Sxy / √(Sxx × Syy)</Formula>
-              <p>r = {reg.sxy.toFixed(4)} / √({reg.sxx.toFixed(4)} × {reg.syy.toFixed(4)})</p>
+              <Formula>r = (Σxᵢyᵢ − n · x̄ · ȳ) / √[(Σxᵢ² − n · x̄²)(Σyᵢ² − n · ȳ²)]</Formula>
+              <p>Numerador = {(reg.sumXY - reg.n * reg.xMean * reg.yMean).toFixed(4)}</p>
+              <p>Denominador = √({(reg.sumX2 - reg.n * reg.xMean * reg.xMean).toFixed(4)} × {(reg.sumY2 - reg.n * reg.yMean * reg.yMean).toFixed(4)}) = {Math.sqrt((reg.sumX2 - reg.n * reg.xMean * reg.xMean) * (reg.sumY2 - reg.n * reg.yMean * reg.yMean)).toFixed(4)}</p>
               <p>r = <b>{reg.r.toFixed(4)}</b></p>
               <p>Un valor cercano a 1 indica una <b>correlación positiva fuerte</b>.</p>
             </Paso>
@@ -505,8 +502,8 @@ export default function AdminEstadisticaPage() {
 
           <div className="mt-5 rounded-xl border border-slate-100 bg-white/80 p-5">
             <p className="text-xs font-black text-[#667085] uppercase mb-3">Modelo utilizado</p>
-            <p className="text-sm text-[#202837]">ŷ = {reg.b0.toFixed(2)} + {reg.b1.toFixed(2)}x</p>
-            <p className="text-[11px] text-[#8a94a6] mt-1">Donde x = usuarios activos e ŷ = reservas estimadas</p>
+            <p className="text-sm text-[#202837]">ŷ = {reg.b1.toFixed(2)}x + {reg.b0.toFixed(2)}</p>
+            <p className="text-[11px] text-[#8a94a6] mt-1">Donde x = usuarios activos, m = {reg.b1.toFixed(2)}, b = {reg.b0.toFixed(2)}</p>
           </div>
 
           <Insight>
@@ -517,13 +514,13 @@ export default function AdminEstadisticaPage() {
           <Desarrollo>
             <Paso numero={1} titulo="Identificar el modelo de interpolación">
               <p>A partir del diagrama de dispersión (usuarios activos vs reservas), obtuvimos la recta de regresión lineal por mínimos cuadrados:</p>
-              <Formula>ŷ = {reg.b0.toFixed(4)} + {reg.b1.toFixed(4)} × x</Formula>
+              <Formula>ŷ = mx + b = {reg.b1.toFixed(4)}x + {reg.b0.toFixed(4)}</Formula>
               <p>Esta ecuación funciona como modelo de interpolación lineal: nos permite estimar valores de y (reservas) para cualquier valor de x (usuarios) dentro del rango observado.</p>
             </Paso>
             {puntosInterpolados.map((p, i) => (
               <Paso key={i} numero={i + 2} titulo={`Interpolar para x = ${p.x} usuarios`}>
-                <Formula>ŷ = {reg.b0.toFixed(4)} + {reg.b1.toFixed(4)} × {p.x}</Formula>
-                <p>ŷ = {reg.b0.toFixed(4)} + {(reg.b1 * p.x).toFixed(4)}</p>
+                <Formula>ŷ = {reg.b1.toFixed(4)} × {p.x} + {reg.b0.toFixed(4)}</Formula>
+                <p>ŷ = {(reg.b1 * p.x).toFixed(4)} + {reg.b0.toFixed(4)}</p>
                 <p>ŷ = <b>{p.y} reservas</b></p>
                 <p>Este valor no está en los datos originales — es un punto hallado mediante interpolación.</p>
               </Paso>
