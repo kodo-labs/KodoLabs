@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import TopBar from '../../components/layout/TopBar'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -79,13 +79,18 @@ function calcularEstadisticas(datos) {
   const q3 = sorted[Math.floor(n * 0.75)]
   const min = sorted[0]
   const max = sorted[n - 1]
-  return { n, media, mediana, moda, modaFreq: maxFreq, varianza, desvio, cv, q1, q3, min, max }
+  return { n, sum, media, mediana, moda, modaFreq: maxFreq, varianza, desvio, cv, q1, q3, min, max }
 }
 
 function calcularRegresion(x, y) {
   const n = x.length
-  const xMean = x.reduce((a, b) => a + b, 0) / n
-  const yMean = y.reduce((a, b) => a + b, 0) / n
+  const sumX = x.reduce((a, b) => a + b, 0)
+  const sumY = y.reduce((a, b) => a + b, 0)
+  const sumXY = x.reduce((a, _, i) => a + x[i] * y[i], 0)
+  const sumX2 = x.reduce((a, v) => a + v * v, 0)
+  const sumY2 = y.reduce((a, v) => a + v * v, 0)
+  const xMean = sumX / n
+  const yMean = sumY / n
   let sxy = 0, sxx = 0, syy = 0
   for (let i = 0; i < n; i++) {
     sxy += (x[i] - xMean) * (y[i] - yMean)
@@ -96,7 +101,7 @@ function calcularRegresion(x, y) {
   const b0 = yMean - b1 * xMean
   const r = sxy / Math.sqrt(sxx * syy)
   const r2 = r * r
-  return { b0, b1, r, r2 }
+  return { b0, b1, r, r2, sumX, sumY, sumXY, sumX2, sumY2, xMean, yMean, sxy, sxx, syy, n }
 }
 
 function calcularInferencia(est) {
@@ -110,14 +115,16 @@ function calcularInferencia(est) {
   const mu0 = 3.0
   const tCalc = (media - mu0) / errorEst
   const rechazo = Math.abs(tCalc) > tCrit
-  return { icInf, icSup, mu0, tCalc, tCrit, rechazo }
+  return { icInf, icSup, mu0, tCalc, tCrit, rechazo, gl, errorEst, margenError }
 }
 
 function construirHistograma(datos) {
   const n = datos.length
   const k = Math.ceil(1 + 3.322 * Math.log10(n))
   const min = Math.min(...datos)
-  const amplitud = Math.ceil((Math.max(...datos) - min) / k * 10) / 10
+  const max = Math.max(...datos)
+  const rango = max - min
+  const amplitud = Math.ceil(rango / k * 10) / 10
   const limiteInf = Math.floor(min * 10) / 10
   const clases = []
   for (let i = 0; i < k; i++) {
@@ -126,7 +133,7 @@ function construirHistograma(datos) {
     const fi = datos.filter(d => i === k - 1 ? (d >= li && d <= ls) : (d >= li && d < ls)).length
     clases.push({ name: `${li.toFixed(1)}-${ls.toFixed(1)}h`, cantidad: fi })
   }
-  return clases
+  return { clases, k, amplitud, limiteInf, rango, min, max }
 }
 
 // ─── Componentes ────────────────────────────────────────────────────────────
@@ -164,15 +171,48 @@ function Insight({ children }) {
   )
 }
 
+function Desarrollo({ children }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="mt-4">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors"
+      >
+        <span className={`inline-block transition-transform duration-200 ${open ? 'rotate-90' : ''}`}>▶</span>
+        {open ? 'Ocultar desarrollo' : 'Ver desarrollo paso a paso'}
+      </button>
+      {open && (
+        <div className="mt-3 rounded-xl border border-blue-100 bg-blue-50/40 p-5 space-y-4 text-sm text-[#414755]">
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function Paso({ numero, titulo, children }) {
+  return (
+    <div>
+      <p className="text-xs font-black text-blue-700 mb-1">Paso {numero}: {titulo}</p>
+      <div className="pl-3 border-l-2 border-blue-200 space-y-1">{children}</div>
+    </div>
+  )
+}
+
+function Formula({ children }) {
+  return <p className="font-mono text-xs bg-white/80 rounded px-2 py-1 inline-block">{children}</p>
+}
+
 const COLORS = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6']
 
 export default function AdminEstadisticaPage() {
-  const { est, reg, inf, histograma, datosTipo, datosDispersion, datosRecta } = useMemo(() => {
+  const { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta } = useMemo(() => {
     const raw = generarDatos()
     const est = calcularEstadisticas(raw.duraciones)
     const reg = calcularRegresion(raw.usuariosActivos, raw.reservasDiarias)
     const inf = calcularInferencia(est)
-    const histograma = construirHistograma(raw.duraciones)
+    const histData = construirHistograma(raw.duraciones)
 
     const cSala = raw.tipos.filter(t => t === 'Sala de Reuniones').length
     const cEsc = raw.tipos.filter(t => t === 'Escritorio').length
@@ -192,8 +232,10 @@ export default function AdminEstadisticaPage() {
       datosRecta.push({ usuarios: x, regresion: Math.round((reg.b0 + reg.b1 * x) * 100) / 100 })
     }
 
-    return { est, reg, inf, histograma, datosTipo, datosDispersion, datosRecta }
+    return { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta }
   }, [])
+
+  const histograma = histData.clases
 
   return (
     <div>
@@ -246,6 +288,47 @@ export default function AdminEstadisticaPage() {
             <p>La mayoría de las reservas dura entre <b>1 y 3 horas</b>, lo que corresponde a reuniones y sesiones de trabajo cortas. Sin embargo, hay un grupo significativo de reservas de <b>5 a 7 horas</b> (jornadas completas en escritorios).</p>
             <p>Las reservas se reparten equitativamente entre <b>salas de reuniones</b> y <b>escritorios individuales</b>, lo que muestra un uso balanceado de ambos tipos de recurso.</p>
           </Insight>
+
+          <Desarrollo>
+            <Paso numero={1} titulo="Determinar la cantidad de clases (Regla de Sturges)">
+              <Formula>k = 1 + 3,322 × log₁₀(n)</Formula>
+              <p>k = 1 + 3,322 × log₁₀({est.n}) = 1 + 3,322 × {Math.log10(est.n).toFixed(4)} = {(1 + 3.322 * Math.log10(est.n)).toFixed(2)}</p>
+              <p>Redondeando hacia arriba: <b>k = {histData.k} clases</b></p>
+            </Paso>
+            <Paso numero={2} titulo="Calcular el rango y la amplitud">
+              <Formula>Rango = Valor máximo − Valor mínimo</Formula>
+              <p>Rango = {histData.max.toFixed(2)} − {histData.min.toFixed(2)} = {histData.rango.toFixed(2)}</p>
+              <Formula>Amplitud = Rango / k</Formula>
+              <p>Amplitud = {histData.rango.toFixed(2)} / {histData.k} ≈ <b>{histData.amplitud.toFixed(1)}</b></p>
+            </Paso>
+            <Paso numero={3} titulo="Construir la tabla de frecuencias">
+              <p>Partiendo desde {histData.limiteInf.toFixed(1)}, construimos {histData.k} intervalos de amplitud {histData.amplitud.toFixed(1)}:</p>
+              <div className="overflow-x-auto mt-2">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-blue-200">
+                      <th className="text-left py-1 pr-3">Clase</th>
+                      <th className="text-left py-1 pr-3">Intervalo</th>
+                      <th className="text-right py-1">Frecuencia (fᵢ)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {histograma.map((c, i) => (
+                      <tr key={i} className="border-b border-blue-100/50">
+                        <td className="py-1 pr-3">{i + 1}</td>
+                        <td className="py-1 pr-3">{c.name}</td>
+                        <td className="text-right py-1">{c.cantidad}</td>
+                      </tr>
+                    ))}
+                    <tr className="font-bold">
+                      <td className="py-1 pr-3" colSpan={2}>Total</td>
+                      <td className="text-right py-1">{est.n}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </Paso>
+          </Desarrollo>
         </Card>
 
         {/* ─── MÉTRICAS CLAVE ─── */}
@@ -265,6 +348,42 @@ export default function AdminEstadisticaPage() {
             <p>La variabilidad es <b>alta ({est.cv.toFixed(0)}%)</b>, lo cual es esperable: las salas se usan para reuniones cortas y los escritorios para jornadas completas. El 50% de las reservas dura entre <b>{est.q1.toFixed(1)}h</b> y <b>{est.q3.toFixed(1)}h</b>.</p>
             <p><b>Recomendación:</b> Ofrecer slots flexibles, con opciones predeterminadas de 1h, 2h, 4h y jornada completa.</p>
           </Insight>
+
+          <Desarrollo>
+            <Paso numero={1} titulo="Media aritmética (promedio)">
+              <Formula>x̄ = Σxᵢ / n</Formula>
+              <p>Sumamos todas las duraciones: Σxᵢ = {est.sum.toFixed(2)}</p>
+              <p>x̄ = {est.sum.toFixed(2)} / {est.n} = <b>{est.media.toFixed(4)} horas</b></p>
+            </Paso>
+            <Paso numero={2} titulo="Mediana (valor central)">
+              <p>Ordenamos los {est.n} datos de menor a mayor.</p>
+              <p>Como n = {est.n} es par, la mediana es el promedio de los valores en las posiciones {est.n / 2} y {est.n / 2 + 1}.</p>
+              <Formula>Me = (x₍₂₅₎ + x₍₂₆₎) / 2</Formula>
+              <p>Me = <b>{est.mediana.toFixed(2)} horas</b></p>
+            </Paso>
+            <Paso numero={3} titulo="Moda (valor más frecuente)">
+              <p>Buscamos el valor con mayor frecuencia absoluta.</p>
+              <p>El valor <b>{est.moda.toFixed(1)}h</b> aparece {est.modaFreq} veces, más que cualquier otro.</p>
+            </Paso>
+            <Paso numero={4} titulo="Varianza y desvío estándar">
+              <Formula>S² = Σ(xᵢ − x̄)² / (n − 1)</Formula>
+              <p>Calculamos la suma de los desvíos cuadrados respecto a la media y dividimos por n−1 = {est.n - 1} (corrección de Bessel para muestras).</p>
+              <p>S² = <b>{est.varianza.toFixed(4)}</b></p>
+              <Formula>S = √S²</Formula>
+              <p>S = √{est.varianza.toFixed(4)} = <b>{est.desvio.toFixed(4)} horas</b></p>
+            </Paso>
+            <Paso numero={5} titulo="Coeficiente de variación">
+              <Formula>CV = (S / x̄) × 100</Formula>
+              <p>CV = ({est.desvio.toFixed(4)} / {est.media.toFixed(4)}) × 100 = <b>{est.cv.toFixed(2)}%</b></p>
+              <p>Un CV mayor al 30% indica <b>alta dispersión</b> en los datos.</p>
+            </Paso>
+            <Paso numero={6} titulo="Cuartiles">
+              <p>Q₁ (25%) = <b>{est.q1.toFixed(2)}h</b> — El 25% de las reservas dura menos que esto.</p>
+              <p>Q₃ (75%) = <b>{est.q3.toFixed(2)}h</b> — El 75% de las reservas dura menos que esto.</p>
+              <Formula>IQR = Q₃ − Q₁</Formula>
+              <p>IQR = {est.q3.toFixed(2)} − {est.q1.toFixed(2)} = <b>{(est.q3 - est.q1).toFixed(2)}h</b></p>
+            </Paso>
+          </Desarrollo>
         </Card>
 
         {/* ─── RELACIÓN USUARIOS - RESERVAS ─── */}
@@ -297,6 +416,61 @@ export default function AdminEstadisticaPage() {
             <p>Existe una <b>relación fuerte y positiva</b> entre usuarios activos y reservas: a más usuarios conectados, más reservas se generan. El modelo predice correctamente el <b>{(reg.r2 * 100).toFixed(0)}%</b> de los casos.</p>
             <p>En la práctica, por cada usuario activo adicional se generan aproximadamente <b>{reg.b1.toFixed(1)} reservas más</b>. Esto es útil para anticipar la demanda y preparar recursos en días de alta actividad.</p>
           </Insight>
+
+          <Desarrollo>
+            <Paso numero={1} titulo="Tabla de sumatorias">
+              <p>Con n = {reg.n} días analizados, calculamos las sumatorias necesarias:</p>
+              <div className="overflow-x-auto mt-2">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-blue-200">
+                      <th className="text-right py-1 pr-4">Σx</th>
+                      <th className="text-right py-1 pr-4">Σy</th>
+                      <th className="text-right py-1 pr-4">Σxy</th>
+                      <th className="text-right py-1 pr-4">Σx²</th>
+                      <th className="text-right py-1">Σy²</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="text-right py-1 pr-4">{reg.sumX}</td>
+                      <td className="text-right py-1 pr-4">{reg.sumY}</td>
+                      <td className="text-right py-1 pr-4">{reg.sumXY}</td>
+                      <td className="text-right py-1 pr-4">{reg.sumX2}</td>
+                      <td className="text-right py-1">{reg.sumY2}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-2">x̄ = {reg.sumX} / {reg.n} = {reg.xMean.toFixed(2)} &nbsp;&nbsp;|&nbsp;&nbsp; ȳ = {reg.sumY} / {reg.n} = {reg.yMean.toFixed(2)}</p>
+            </Paso>
+            <Paso numero={2} titulo="Cálculo de Sxy, Sxx, Syy">
+              <Formula>Sxy = Σ(xᵢ − x̄)(yᵢ − ȳ)</Formula>
+              <p>Sxy = {reg.sxy.toFixed(4)}</p>
+              <Formula>Sxx = Σ(xᵢ − x̄)²</Formula>
+              <p>Sxx = {reg.sxx.toFixed(4)}</p>
+              <Formula>Syy = Σ(yᵢ − ȳ)²</Formula>
+              <p>Syy = {reg.syy.toFixed(4)}</p>
+            </Paso>
+            <Paso numero={3} titulo="Coeficientes de la recta de regresión">
+              <Formula>b₁ = Sxy / Sxx</Formula>
+              <p>b₁ = {reg.sxy.toFixed(4)} / {reg.sxx.toFixed(4)} = <b>{reg.b1.toFixed(4)}</b></p>
+              <Formula>b₀ = ȳ − b₁ × x̄</Formula>
+              <p>b₀ = {reg.yMean.toFixed(2)} − {reg.b1.toFixed(4)} × {reg.xMean.toFixed(2)} = <b>{reg.b0.toFixed(4)}</b></p>
+              <p className="mt-1">Ecuación de la recta: <b>ŷ = {reg.b0.toFixed(2)} + {reg.b1.toFixed(2)}x</b></p>
+            </Paso>
+            <Paso numero={4} titulo="Coeficiente de correlación de Pearson">
+              <Formula>r = Sxy / √(Sxx × Syy)</Formula>
+              <p>r = {reg.sxy.toFixed(4)} / √({reg.sxx.toFixed(4)} × {reg.syy.toFixed(4)})</p>
+              <p>r = <b>{reg.r.toFixed(4)}</b></p>
+              <p>Un valor cercano a 1 indica una <b>correlación positiva fuerte</b>.</p>
+            </Paso>
+            <Paso numero={5} titulo="Coeficiente de determinación">
+              <Formula>r² = r × r</Formula>
+              <p>r² = {reg.r.toFixed(4)}² = <b>{reg.r2.toFixed(4)}</b></p>
+              <p>El <b>{(reg.r2 * 100).toFixed(2)}%</b> de la variabilidad en las reservas queda explicada por la cantidad de usuarios activos.</p>
+            </Paso>
+          </Desarrollo>
         </Card>
 
         {/* ─── INTERVALO DE CONFIANZA ─── */}
@@ -332,6 +506,32 @@ export default function AdminEstadisticaPage() {
             <p>Podemos afirmar con un <b>95% de confianza</b> que la duración promedio real de las reservas en BookDesk está entre <b>{inf.icInf.toFixed(2)}h</b> y <b>{inf.icSup.toFixed(2)}h</b>.</p>
             <p>Esto le permite al administrador planificar la disponibilidad de recursos sabiendo que el uso típico ronda las <b>{est.media.toFixed(1)} horas</b>, con un margen estrecho de variación.</p>
           </Insight>
+
+          <Desarrollo>
+            <Paso numero={1} titulo="Identificar los datos">
+              <p>x̄ = {est.media.toFixed(4)} &nbsp;&nbsp;|&nbsp;&nbsp; S = {est.desvio.toFixed(4)} &nbsp;&nbsp;|&nbsp;&nbsp; n = {est.n}</p>
+              <p>Nivel de confianza: 95% (α = 0,05)</p>
+              <p>Grados de libertad: gl = n − 1 = {inf.gl}</p>
+            </Paso>
+            <Paso numero={2} titulo="Valor crítico t de Student">
+              <p>Buscamos t<sub>α/2, gl</sub> = t<sub>0,025; {inf.gl}</sub> en la tabla t de Student.</p>
+              <p>t<sub>crítico</sub> = <b>{inf.tCrit}</b></p>
+            </Paso>
+            <Paso numero={3} titulo="Error estándar de la media">
+              <Formula>EE = S / √n</Formula>
+              <p>EE = {est.desvio.toFixed(4)} / √{est.n} = {est.desvio.toFixed(4)} / {Math.sqrt(est.n).toFixed(4)} = <b>{inf.errorEst.toFixed(4)}</b></p>
+            </Paso>
+            <Paso numero={4} titulo="Margen de error">
+              <Formula>E = t_crítico × EE</Formula>
+              <p>E = {inf.tCrit} × {inf.errorEst.toFixed(4)} = <b>{inf.margenError.toFixed(4)}</b></p>
+            </Paso>
+            <Paso numero={5} titulo="Intervalo de confianza">
+              <Formula>IC = (x̄ − E &nbsp;;&nbsp; x̄ + E)</Formula>
+              <p>IC = ({est.media.toFixed(4)} − {inf.margenError.toFixed(4)} &nbsp;;&nbsp; {est.media.toFixed(4)} + {inf.margenError.toFixed(4)})</p>
+              <p><b>IC = ({inf.icInf.toFixed(4)} ; {inf.icSup.toFixed(4)})</b></p>
+              <p className="mt-1">Con un 95% de confianza, la duración promedio real se encuentra entre <b>{inf.icInf.toFixed(2)}h</b> y <b>{inf.icSup.toFixed(2)}h</b>.</p>
+            </Paso>
+          </Desarrollo>
         </Card>
 
         {/* ─── PRUEBA DE HIPÓTESIS ─── */}
@@ -395,6 +595,37 @@ export default function AdminEstadisticaPage() {
               }
             </p>
           </div>
+
+          <Desarrollo>
+            <Paso numero={1} titulo="Plantear las hipótesis">
+              <p>H₀: μ = {inf.mu0} (la duración promedio es {inf.mu0} horas)</p>
+              <p>H₁: μ ≠ {inf.mu0} (la duración promedio es diferente de {inf.mu0} horas)</p>
+              <p>Prueba bilateral con α = 0,05</p>
+            </Paso>
+            <Paso numero={2} titulo="Nivel de significación y valor crítico">
+              <p>α = 0,05 → α/2 = 0,025</p>
+              <p>Grados de libertad: gl = n − 1 = {est.n} − 1 = {inf.gl}</p>
+              <p>Buscando en la tabla t de Student: t<sub>crítico</sub> = ±{inf.tCrit}</p>
+              <p>Zona de rechazo: t {'<'} −{inf.tCrit} &nbsp;o&nbsp; t {'>'} {inf.tCrit}</p>
+            </Paso>
+            <Paso numero={3} titulo="Calcular el estadístico de prueba">
+              <Formula>t = (x̄ − μ₀) / (S / √n)</Formula>
+              <p>t = ({est.media.toFixed(4)} − {inf.mu0}) / ({est.desvio.toFixed(4)} / √{est.n})</p>
+              <p>t = {(est.media - inf.mu0).toFixed(4)} / {inf.errorEst.toFixed(4)}</p>
+              <p>t = <b>{inf.tCalc.toFixed(4)}</b></p>
+            </Paso>
+            <Paso numero={4} titulo="Comparar con el valor crítico">
+              <p>|t<sub>calculado</sub>| = {Math.abs(inf.tCalc).toFixed(4)}</p>
+              <p>t<sub>crítico</sub> = {inf.tCrit}</p>
+              <p>{Math.abs(inf.tCalc).toFixed(4)} {Math.abs(inf.tCalc) > inf.tCrit ? '>' : '<'} {inf.tCrit} → <b>{Math.abs(inf.tCalc) > inf.tCrit ? 'Cae en zona de rechazo' : 'No cae en zona de rechazo'}</b></p>
+            </Paso>
+            <Paso numero={5} titulo="Conclusión">
+              <p>{inf.rechazo
+                ? `Como |t| > t_crítico, se rechaza H₀. Hay evidencia estadística suficiente para afirmar que la duración promedio es diferente de ${inf.mu0} horas.`
+                : `Como |t| < t_crítico, no se rechaza H₀. No hay evidencia estadística suficiente para afirmar que la duración promedio sea diferente de ${inf.mu0} horas. La suposición de ${inf.mu0} horas se mantiene.`
+              }</p>
+            </Paso>
+          </Desarrollo>
         </Card>
 
         {/* ─── RECOMENDACIONES ─── */}
