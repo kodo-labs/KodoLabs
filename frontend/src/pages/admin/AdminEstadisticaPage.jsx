@@ -207,7 +207,7 @@ function Formula({ children }) {
 const COLORS = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6']
 
 export default function AdminEstadisticaPage() {
-  const { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta } = useMemo(() => {
+  const { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta, puntosInterpolados } = useMemo(() => {
     const raw = generarDatos()
     const est = calcularEstadisticas(raw.duraciones)
     const reg = calcularRegresion(raw.usuariosActivos, raw.reservasDiarias)
@@ -232,7 +232,20 @@ export default function AdminEstadisticaPage() {
       datosRecta.push({ usuarios: x, regresion: Math.round((reg.b0 + reg.b1 * x) * 100) / 100 })
     }
 
-    return { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta }
+    const valoresXReales = new Set(raw.usuariosActivos)
+    const xMinReal = Math.min(...raw.usuariosActivos)
+    const xMaxReal = Math.max(...raw.usuariosActivos)
+    const candidatos = []
+    for (let x = xMinReal; x <= xMaxReal; x++) {
+      if (!valoresXReales.has(x)) candidatos.push(x)
+    }
+    const picks = [candidatos[1], candidatos[Math.floor(candidatos.length / 2)], candidatos[candidatos.length - 2]].filter(Boolean)
+    const puntosInterpolados = picks.map(x => ({
+      x,
+      y: Math.round((reg.b0 + reg.b1 * x) * 100) / 100,
+    }))
+
+    return { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta, puntosInterpolados }
   }, [])
 
   const histograma = histData.clases
@@ -469,6 +482,55 @@ export default function AdminEstadisticaPage() {
               <Formula>r² = r × r</Formula>
               <p>r² = {reg.r.toFixed(4)}² = <b>{reg.r2.toFixed(4)}</b></p>
               <p>El <b>{(reg.r2 * 100).toFixed(2)}%</b> de la variabilidad en las reservas queda explicada por la cantidad de usuarios activos.</p>
+            </Paso>
+          </Desarrollo>
+        </Card>
+
+        {/* ─── INTERPOLACIÓN Y PREDICCIÓN (ANÁLISIS NUMÉRICO) ─── */}
+        <Card>
+          <h2 className="text-lg font-black text-[#202837] mb-1">Predicción de reservas por interpolación</h2>
+          <p className="text-xs text-[#667085] mb-5">Usando el modelo de regresión como función de interpolación, estimamos la cantidad de reservas para días con cantidades de usuarios que no fueron registrados en los datos originales.</p>
+
+          <div className={`grid gap-3 sm:grid-cols-${puntosInterpolados.length}`}>
+            {puntosInterpolados.map((p, i) => (
+              <Stat
+                key={i}
+                label={`${p.x} usuarios`}
+                value={p.y + ' reservas'}
+                sub="Valor interpolado"
+                color={['blue', 'green', 'orange'][i]}
+              />
+            ))}
+          </div>
+
+          <div className="mt-5 rounded-xl border border-slate-100 bg-white/80 p-5">
+            <p className="text-xs font-black text-[#667085] uppercase mb-3">Modelo utilizado</p>
+            <p className="text-sm text-[#202837]">ŷ = {reg.b0.toFixed(2)} + {reg.b1.toFixed(2)}x</p>
+            <p className="text-[11px] text-[#8a94a6] mt-1">Donde x = usuarios activos e ŷ = reservas estimadas</p>
+          </div>
+
+          <Insight>
+            <p>La interpolación permite al administrador <b>estimar la demanda</b> en escenarios que no ocurrieron en el período analizado. Por ejemplo, si un día se conectan <b>{puntosInterpolados[0]?.x} usuarios</b>, el sistema puede anticipar aproximadamente <b>{puntosInterpolados[0]?.y} reservas</b>.</p>
+            <p>Estos valores no están en los datos originales, pero el modelo matemático permite <b>predecirlos con un {(reg.r2 * 100).toFixed(0)}% de confiabilidad</b>, lo que facilita la planificación de recursos del coworking.</p>
+          </Insight>
+
+          <Desarrollo>
+            <Paso numero={1} titulo="Identificar el modelo de interpolación">
+              <p>A partir del diagrama de dispersión (usuarios activos vs reservas), obtuvimos la recta de regresión lineal por mínimos cuadrados:</p>
+              <Formula>ŷ = {reg.b0.toFixed(4)} + {reg.b1.toFixed(4)} × x</Formula>
+              <p>Esta ecuación funciona como modelo de interpolación lineal: nos permite estimar valores de y (reservas) para cualquier valor de x (usuarios) dentro del rango observado.</p>
+            </Paso>
+            {puntosInterpolados.map((p, i) => (
+              <Paso key={i} numero={i + 2} titulo={`Interpolar para x = ${p.x} usuarios`}>
+                <Formula>ŷ = {reg.b0.toFixed(4)} + {reg.b1.toFixed(4)} × {p.x}</Formula>
+                <p>ŷ = {reg.b0.toFixed(4)} + {(reg.b1 * p.x).toFixed(4)}</p>
+                <p>ŷ = <b>{p.y} reservas</b></p>
+                <p>Este valor no está en los datos originales — es un punto hallado mediante interpolación.</p>
+              </Paso>
+            ))}
+            <Paso numero={puntosInterpolados.length + 2} titulo="Validez del modelo">
+              <p>El coeficiente de determinación r² = {reg.r2.toFixed(4)} indica que el modelo explica el <b>{(reg.r2 * 100).toFixed(2)}%</b> de la variabilidad.</p>
+              <p>Las predicciones son válidas dentro del rango observado ({Math.min(...puntosInterpolados.map(p => p.x))} a {Math.max(...puntosInterpolados.map(p => p.x))} usuarios). Fuera de ese rango sería extrapolación, que tiene menor confiabilidad.</p>
             </Paso>
           </Desarrollo>
         </Card>
