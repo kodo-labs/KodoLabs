@@ -27,8 +27,7 @@
 
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\small\textcolor{gray}{Trabajo Integrador — Probabilidad y Estadística}}
-\fancyhead[R]{\small\textcolor{gray}{BookDesk}}
+\renewcommand{\headrulewidth}{0pt}
 \fancyfoot[C]{\thepage}
 
 % Más espacio antes y después de secciones
@@ -43,11 +42,11 @@
 \section*{Introducción}
 \addcontentsline{toc}{section}{Introducción}
 
-En este trabajo buscamos aplicar lo que vimos en Probabilidad y Estadística a un caso concreto: nuestro proyecto de Ingeniería de Software II. El sistema que venimos desarrollando se llama \textbf{BookDesk}, y básicamente es una plataforma web para gestionar reservas de salas y escritorios en un espacio de coworking.
+En este trabajo buscamos aplicar lo que vimos en Probabilidad y Estadística a un caso concreto: nuestro proyecto de Ingeniería de Software II. El sistema que venimos desarrollando se llama BookDesk, y básicamente es una plataforma web para gestionar reservas de salas y escritorios en un espacio de coworking.
 
 La idea surgió de que en el coworking donde uno de nosotros trabaja, las reservas se manejaban con una planilla de Excel compartida y siempre había problemas: gente que reservaba el mismo horario, confusiones con las salas, etc. BookDesk resuelve eso con un sistema centralizado donde cada miembro puede ver la disponibilidad en tiempo real y reservar desde el navegador.
 
-Para el análisis estadístico nos enfocamos en la \textbf{duración de las reservas} como variable principal, porque nos pareció que es un dato útil para entender cómo se usa el espacio. También analizamos si hay relación entre la cantidad de usuarios conectados en un día y cuántas reservas se generan.
+Para el análisis estadístico nos enfocamos en la duración de las reservas como variable principal, porque nos pareció que es un dato útil para entender cómo se usa el espacio. También analizamos si hay relación entre la cantidad de usuarios conectados en un día y cuántas reservas se generan.
 
 Trabajamos con datos simulados (50 observaciones para lo descriptivo y 30 para regresión) porque el sistema todavía no tiene suficiente historial real. Los datos los generamos con Python tratando de que reflejen patrones de uso creíbles: reuniones cortas, jornadas parciales, jornadas completas, etc.
 
@@ -58,10 +57,10 @@ Trabajamos con datos simulados (50 observaciones para lo descriptivo y 30 para r
 \subsection{Variable identificada}
 
 \begin{itemize}[itemsep=4pt]
-  \item \textbf{Variable:} Duración de las reservas (en horas).
-  \item \textbf{Tipo:} Cuantitativa continua.
-  \item \textbf{Población:} Todas las reservas que se hagan en BookDesk.
-  \item \textbf{Muestra:} 50 observaciones simuladas.
+  \item Variable: Duración de las reservas (en horas).
+  \item Tipo: Cuantitativa continua.
+  \item Población: Todas las reservas que se hagan en BookDesk.
+  \item Muestra: 50 observaciones simuladas.
 \end{itemize}
 
 Elegimos esta variable porque tiene impacto directo en cómo se administra el coworking. Si sabemos cuánto duran las reservas en promedio, podemos configurar mejor los slots de tiempo y anticipar cuándo van a quedar libres los espacios.
@@ -135,38 +134,38 @@ Se nota que el primer intervalo (0,8 a 1,9 horas) concentra la mayor cantidad de
 
 \subsection{Medidas de tendencia central}
 
-\textbf{Media aritmética:} sumamos todas las duraciones y dividimos por $n$:
+Media aritmética: sumamos todas las duraciones y dividimos por $n$:
 
 \vspace{4pt}
 $$\bar{x} = \frac{\sum_{i=1}^{n} x_i}{n} = \frac{164{,}73}{50} = 3{,}2946 \text{ h}$$
 \vspace{6pt}
 
-\textbf{Mediana:} ordenamos las 50 observaciones de menor a mayor. Como $n = 50$ es par, la mediana es el promedio de las observaciones 25 y 26:
+Mediana: ordenamos las 50 observaciones de menor a mayor. Como $n = 50$ es par, la mediana es el promedio de las observaciones 25 y 26:
 
 \vspace{4pt}
 $$Me = \frac{x_{(25)} + x_{(26)}}{2} = 2{,}88 \text{ h}$$
 \vspace{6pt}
 
-\textbf{Moda:} buscamos el valor que más se repite. Redondeando a un decimal, la duración más frecuente es:
+Moda: buscamos el valor que más se repite. Redondeando a un decimal, la duración más frecuente es:
 
 \vspace{4pt}
 $$Mo = 1{,}70 \text{ h}$$
 
 \subsection{Medidas de dispersión}
 
-\textbf{Varianza muestral:} calculamos la suma de los desvíos al cuadrado y dividimos por $n - 1$:
+Varianza muestral: calculamos la suma de los desvíos al cuadrado y dividimos por $n - 1$:
 
 \vspace{4pt}
 $$s^2 = \frac{\sum_{i=1}^{n}(x_i - \bar{x})^2}{n - 1} = \frac{164{,}5172}{49} = 3{,}3575$$
 \vspace{6pt}
 
-\textbf{Desvío estándar:}
+Desvío estándar:
 
 \vspace{4pt}
 $$s = \sqrt{s^2} = \sqrt{3{,}3575} = 1{,}8323 \text{ h}$$
 \vspace{6pt}
 
-\textbf{Coeficiente de variación:}
+Coeficiente de variación:
 
 \vspace{4pt}
 $$CV = \frac{s}{\bar{x}} \times 100 = \frac{1{,}8323}{3{,}2946} \times 100 = 55{,}62\%$$
@@ -218,8 +217,8 @@ Si miramos los cuartiles, el 50\% central de las reservas dura entre 1,75 y 4,71
 Acá quisimos ver si hay relación entre cuántos usuarios se conectan al sistema en un día y cuántas reservas se generan ese mismo día:
 
 \begin{itemize}[itemsep=4pt]
-  \item \textbf{$X$:} Usuarios activos por día.
-  \item \textbf{$Y$:} Reservas diarias.
+  \item $X$: Usuarios activos por día.
+  \item $Y$: Reservas diarias.
 \end{itemize}
 
 Usamos datos de $n = 30$ días. La pregunta era bastante intuitiva: ¿si hay más gente conectada, se hacen más reservas? Parece obvio, pero queríamos cuantificarlo.
@@ -310,7 +309,7 @@ En la práctica, esto podría servir para que el administrador del coworking ant
 
 Queríamos estimar cuál sería la duración media ``real'' de las reservas si tuviéramos datos de toda la población (no solo nuestra muestra de 50). Para eso armamos un intervalo de confianza al 95\%.
 
-\textbf{Datos:}
+Datos:
 \begin{itemize}[itemsep=4pt]
   \item $n = 50$, \quad $\bar{x} = 3{,}2946$ h, \quad $s = 1{,}8323$ h
   \item Nivel de confianza: $1 - \alpha = 0{,}95$ \quad $\Rightarrow$ \quad $\alpha = 0{,}05$
@@ -377,10 +376,10 @@ La regla es: si $|t_{calc}| > t_{crit}$, rechazamos $H_0$.
 Comparamos:
 $$|t_{calc}| = 1{,}14 \quad < \quad t_{crit} = 2{,}01$$
 
-El estadístico cae en la \textbf{zona de no rechazo}. También calculamos el $p$-valor:
+El estadístico cae en la zona de no rechazo. También calculamos el $p$-valor:
 $$p = 0{,}2611 \quad > \quad \alpha = 0{,}05$$
 
-Como $p > \alpha$, \textbf{no rechazamos $H_0$}.
+Como $p > \alpha$, no rechazamos $H_0$.
 
 \vspace{6pt}
 \textbf{Paso 5 — Conclusión:}
