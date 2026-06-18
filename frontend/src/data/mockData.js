@@ -112,6 +112,25 @@ export const RESOURCES = [
   },
 ]
 
+// ─── Semana actual ──────────────────────────────────────────────────────────
+function getCurrentWeekDays() {
+  const today = new Date()
+  const dow = today.getDay()
+  const monday = new Date(today)
+  monday.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1))
+  const labels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie']
+  return labels.map((label, i) => {
+    const d = new Date(monday)
+    d.setDate(monday.getDate() + i)
+    const yyyy = d.getFullYear()
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const dd = String(d.getDate()).padStart(2, '0')
+    return { label, date: `${yyyy}-${mm}-${dd}` }
+  })
+}
+
+export const WEEK_DAYS = getCurrentWeekDays()
+
 // ─── Reservas (semana actual) ────────────────────────────────────────────────
 // status: 'confirmed' | 'pending' | 'cancelled'
 const _w = WEEK_DAYS
@@ -228,24 +247,6 @@ export const TIME_SLOTS = [
   '08:00', '09:00', '10:00', '11:00', '12:00',
   '13:00', '14:00', '15:00', '16:00', '17:00', '18:00',
 ]
-
-function getCurrentWeekDays() {
-  const today = new Date()
-  const dow = today.getDay()
-  const monday = new Date(today)
-  monday.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1))
-  const labels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie']
-  return labels.map((label, i) => {
-    const d = new Date(monday)
-    d.setDate(monday.getDate() + i)
-    const yyyy = d.getFullYear()
-    const mm = String(d.getMonth() + 1).padStart(2, '0')
-    const dd = String(d.getDate()).padStart(2, '0')
-    return { label, date: `${yyyy}-${mm}-${dd}` }
-  })
-}
-
-export const WEEK_DAYS = getCurrentWeekDays()
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 export function formatShortDate(dateStr) {
