@@ -207,8 +207,10 @@ function Formula({ children }) {
 const COLORS = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6']
 
 export default function AdminEstadisticaPage() {
-  const { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta, puntosInterpolados } = useMemo(() => {
+  const { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta, puntosInterpolados, duracionesRaw, tiposRaw } = useMemo(() => {
     const raw = generarDatos()
+    const duracionesRaw = raw.duraciones
+    const tiposRaw = raw.tipos
     const est = calcularEstadisticas(raw.duraciones)
     const reg = calcularRegresion(raw.usuariosActivos, raw.reservasDiarias)
     const inf = calcularInferencia(est)
@@ -245,7 +247,7 @@ export default function AdminEstadisticaPage() {
       y: Math.round((reg.b0 + reg.b1 * x) * 100) / 100,
     }))
 
-    return { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta, puntosInterpolados }
+    return { est, reg, inf, histData, datosTipo, datosDispersion, datosRecta, puntosInterpolados, duracionesRaw, tiposRaw }
   }, [])
 
   const histograma = histData.clases
@@ -266,6 +268,31 @@ export default function AdminEstadisticaPage() {
           <Stat label="Reserva más corta" value={est.min.toFixed(1) + ' h'} color="slate" />
           <Stat label="Reserva más larga" value={est.max.toFixed(1) + ' h'} color="orange" />
         </div>
+
+        <Desarrollo>
+          <p className="font-bold text-[#202837] mb-2">Datos utilizados — {est.n} reservas simuladas</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-blue-200">
+                  <th className="text-left py-1 pr-3">#</th>
+                  <th className="text-left py-1 pr-3">Tipo de recurso</th>
+                  <th className="text-right py-1">Duración (h)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {duracionesRaw.map((d, i) => (
+                  <tr key={i} className="border-b border-blue-100/50">
+                    <td className="py-1 pr-3 text-[#8a94a6]">{i + 1}</td>
+                    <td className="py-1 pr-3">{tiposRaw[i]}</td>
+                    <td className="text-right py-1 font-mono">{d.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-xs text-[#8a94a6]">Las duraciones están expresadas en bloques de 15 minutos (múltiplos de 0,25h). Valores ordenados: {[...duracionesRaw].sort((a, b) => a - b).map(d => d.toFixed(2)).join(', ')}</p>
+        </Desarrollo>
 
         {/* ─── DISTRIBUCIÓN DE DURACIONES ─── */}
         <Card>
